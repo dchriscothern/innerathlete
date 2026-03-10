@@ -1,0 +1,8 @@
+<type>(<scope>): <subject>
+
+# Types: 
+# feat: A new feature for the athlete dashboard
+# fix: A bug fix in the Z-score logic
+# docs: Documentation changes (README, context.md)
+# data: Updates to the CSV or database
+# refactor: Code changes that neither fix a bug nor add a feature
