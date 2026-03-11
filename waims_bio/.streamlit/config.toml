@@ -6,5 +6,11 @@ textColor = "#F0F6FC"
 font = "sans serif"
 
 [server]
-headless = true
-runOnSave = true
+# This MUST be false for the browser to pop up automatically
+headless = false
+# This ensures it uses the standard port
+port = 8501
+
+[browser]
+# This tells Streamlit to actively try to open your browser
+gatherUsageStats = false
