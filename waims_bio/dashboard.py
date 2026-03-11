@@ -3,6 +3,7 @@ import pandas as pd
 import plotly.express as px
 from core.engine import WAIMSEngine
 from biomarker_tab import run_biomarker_tab
+from cognition_tab import run_cognition_tab
 
 # 1. Page Configuration
 st.set_page_config(page_title="WAIMS // BIO-SYNC", layout="wide")
@@ -53,8 +54,8 @@ with tabs[1]: # Biomarkers Tab
     run_biomarker_tab()
 
 with tabs[2]: # Cognition Tab
-    st.subheader("S2 Cognition Metrics")
-    st.info("Module under development. Tracking: Perception Speed & Reaction Time.")
+    # We pass the readiness score so the cognition data reacts to the athlete's state
+    run_cognition_tab(readiness)
 
 with tabs[3]: # Genomics Tab
     st.subheader("Genomic Profile")
