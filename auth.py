@@ -36,12 +36,12 @@ DEMO_USERS = {
 # True = show tab, False = hidden entirely
 # ---------------------------------------------------------------------------
 TAB_ACCESS = {
-    #                            CC     Readiness  Profiles  Trends  Jumps  Injuries  Forecast  Insights
-    "head_coach":      dict(cc=True,  rd=True,   ap=False, tr=True, jt=False, inj=True,  fc=True,  ins=False),
-    "asst_coach":      dict(cc=True,  rd=True,   ap=False, tr=True, jt=False, inj=True,  fc=True,  ins=False),
-    "sport_scientist": dict(cc=True,  rd=True,   ap=True,  tr=True, jt=True,  inj=True,  fc=True,  ins=True),
-    "medical":         dict(cc=True,  rd=True,   ap=True,  tr=True, jt=True,  inj=True,  fc=True,  ins=True),
-    "gm":              dict(cc=True,  rd=False,  ap=False, tr=False,jt=False, inj=True,  fc=False, ins=False),
+    #                            CC     Readiness  Profiles  Trends  Jumps  Injuries  Forecast  Insights  Biomarkers  Cognition  Genetics
+    "head_coach":      dict(cc=True,  rd=True,   ap=False, tr=True, jt=False, inj=True,  fc=True,  ins=False, bio=True, cog=True, gen=True),
+    "asst_coach":      dict(cc=True,  rd=True,   ap=False, tr=True, jt=False, inj=True,  fc=True,  ins=False, bio=True, cog=True, gen=True),
+    "sport_scientist": dict(cc=True,  rd=True,   ap=True,  tr=True, jt=True,  inj=True,  fc=True,  ins=True,  bio=True, cog=True, gen=True),
+    "medical":         dict(cc=True,  rd=True,   ap=True,  tr=True, jt=True,  inj=True,  fc=True,  ins=True,  bio=True, cog=True, gen=True),
+    "gm":              dict(cc=True,  rd=False,  ap=False, tr=False,jt=False, inj=True,  fc=False, ins=False, bio=True, cog=True, gen=True),
 }
 
 # Tab labels (must match order used in dashboard.py)
@@ -54,6 +54,9 @@ TAB_LABELS = {
     "inj": "🚨 Availability & Injuries",
     "fc":  "🔮 Forecast",
     "ins": "🔍 Insights",
+    "bio": "🧪 Biomarkers",
+    "cog": "🧠 S2 Cognition",
+    "gen": "🧬 Genetics",
 }
 
 # Data field visibility per role (used to mask columns in dataframes)

@@ -23,6 +23,14 @@ from auth import (render_login_page, render_user_badge, is_authenticated,
                   current_role, can_see, data_access, get_visible_tabs)
 
 try:
+    from waims_bio.biomarker_tab import run_biomarker_tab
+    from waims_bio.cognition_tab import run_cognition_tab
+    from waims_bio.genomics_tab import run_genomics_tab
+    HAVE_INNERATHLETE_TABS = True
+except ImportError:
+    HAVE_INNERATHLETE_TABS = False
+
+try:
     from data_quality import DataQualityProcessor, show_data_quality_report
     HAVE_DATA_QUALITY = True
 except ImportError:
@@ -2056,6 +2064,46 @@ if "ins" in tab_map:
             unsafe_allow_html=True,
         )
         correlation_explorer_tab(wellness, training_load, force_plate, acwr, injuries, players)
+
+
+if "bio" in tab_map:
+    with tab_map["bio"]:
+        if HAVE_INNERATHLETE_TABS:
+            st.caption("InnerAthlete demo module. Upload anonymized examples only.")
+            run_biomarker_tab()
+        else:
+            st.warning("InnerAthlete biomarker module not available. Check files in `waims_bio`.")
+
+
+if "cog" in tab_map:
+    with tab_map["cog"]:
+        if HAVE_INNERATHLETE_TABS:
+            st.caption("InnerAthlete demo module. S2-style cognition view uses anonymized sample data.")
+            sample_readiness = 78
+            if len(wellness) > 0:
+                today = wellness[wellness["date"] == pd.to_datetime(end_date)].copy()
+                if len(today) > 0:
+                    sample_readiness = round(
+                        (
+                            (today["sleep_hours"].fillna(7.5) / 8) * 30
+                            + ((10 - today["soreness"].fillna(4)) / 10) * 25
+                            + ((10 - today["stress"].fillna(4)) / 10) * 25
+                            + (today["mood"].fillna(7) / 10) * 20
+                        ).mean(),
+                        1,
+                    )
+            run_cognition_tab(sample_readiness)
+        else:
+            st.warning("InnerAthlete cognition module not available. Check files in `waims_bio`.")
+
+
+if "gen" in tab_map:
+    with tab_map["gen"]:
+        if HAVE_INNERATHLETE_TABS:
+            st.caption("InnerAthlete demo module. Genetics content is contextual and anonymized.")
+            run_genomics_tab()
+        else:
+            st.warning("InnerAthlete genetics module not available. Check files in `waims_bio`.")
 
 
 
