@@ -69,6 +69,12 @@ def _zscore(val, series, min_std=0.1):
     return float((val - s.mean()) / max(s.std(), min_std))
 
 
+def _safe_risk_value(value, default=0):
+    if value is None or pd.isna(value):
+        return default
+    return value
+
+
 def _readiness(row):
     """
     Uses trained readiness_scorer.pkl when available.
@@ -528,7 +534,7 @@ def coach_command_center(wellness, players, force_plate, training_load, acwr, en
 
     # ── BULLET 1: WHO needs a conversation (protect + watch) ─────────────────
     protect_list  = [r["name"] for r in summary if r["score"] < 60]
-    watch_list    = [r["name"] for r in summary if r.get("inj_risk") and r["inj_risk"] >= 60
+    watch_list    = [r["name"] for r in summary if _safe_risk_value(r.get("inj_risk")) >= 60
                      and r["score"] >= 60]  # already in protect if score<60
     if protect_list and watch_list:
         b1 = (f"<b>Check in before practice:</b> {', '.join(protect_list[:2])} on protect — "
@@ -686,7 +692,7 @@ def coach_command_center(wellness, players, force_plate, training_load, acwr, en
             "Stress":          r.get("stress", ""),
             "Mood":            r.get("mood", ""),
             "4-day Minutes":   r.get("mins_4d", ""),
-            "Injury Watch":    "Yes" if r.get("inj_risk", 0) >= 60 else "No",
+            "Injury Watch":    "Yes" if _safe_risk_value(r.get("inj_risk")) >= 60 else "No",
         })
 
     import pandas as _pd_exp
@@ -906,7 +912,7 @@ def coach_command_center(wellness, players, force_plate, training_load, acwr, en
         k = _key(r["score"])
         c = CARD[k]
 
-        inj_risk = r.get("inj_risk")
+        inj_risk = _safe_risk_value(r.get("inj_risk"), default=None)
         # Risk indicator — only show when elevated (≥30%). 
         # "Low risk" adds noise without adding decision value for a coach.
         # Coaches act on alerts, not confirmations. (Kitman Labs design principle 2024)
@@ -1044,6 +1050,5 @@ def coach_command_center(wellness, players, force_plate, training_load, acwr, en
         '</div>',
         unsafe_allow_html=True,
     )
-
 
 
