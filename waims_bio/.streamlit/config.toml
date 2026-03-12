@@ -6,7 +6,7 @@ textColor = "#F0F6FC"
 font = "sans serif"
 
 [server]
-headless = true
+headless = false
 port = 8501
 
 [browser]
