@@ -18,7 +18,14 @@ except ModuleNotFoundError:
 
 BASE_DIR = Path(__file__).resolve().parent
 
-st.set_page_config(page_title="InnerAthlete Intelligence Hub", layout="wide")
+LOGO_PATH = BASE_DIR / "data" / "branding" / "your_logo.png"
+
+st.set_page_config(
+    page_title="InnerAthlete Intelligence Hub",
+    page_icon=str(LOGO_PATH) if LOGO_PATH.exists() else None,
+    layout="wide",
+)
+
 
 engine = WAIMSEngine()
 meta = engine.get_org_meta()
