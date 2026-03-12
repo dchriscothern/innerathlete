@@ -1,54 +1,91 @@
-from pathlib import Path
-
-import pandas as pd
-import plotly.express as px
+import plotly.graph_objects as go
 import streamlit as st
 
-from privacy import render_privacy_guardrail
+try:
+    from .mvp_content import ATHLETE_OVERVIEW, S2_ACTIONS, S2_METRICS, score_band
+    from .privacy import render_privacy_guardrail
+except ImportError:
+    from mvp_content import ATHLETE_OVERVIEW, S2_ACTIONS, S2_METRICS, score_band
+    from privacy import render_privacy_guardrail
 
 
-BASE_DIR = Path(__file__).resolve().parent
-TEMPLATE_PATH = BASE_DIR / "data" / "cognitive" / "innerathlete_cognition_template.csv"
+def _score_band_strip():
+    bands = [
+        ("0% - 20%", "Basic"),
+        ("20% - 40%", "Lower Average"),
+        ("40% - 60%", "Average"),
+        ("60% - 80%", "Higher Average"),
+        ("80% - 100%", "Elite"),
+    ]
+    html = ['<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:18px;">']
+    for label, name in bands:
+        _, color, bg = score_band(int(label.split("%")[0]))
+        html.append(
+            f'<div style="background:{bg};border:1px solid {color}55;border-radius:10px;padding:12px;text-align:center;">'
+            f'<div style="font-size:12px;font-weight:700;color:#334155;">{label}</div>'
+            f'<div style="font-size:11px;letter-spacing:0.04em;text-transform:uppercase;color:{color};">{name}</div>'
+            f"</div>"
+        )
+    html.append("</div>")
+    return "".join(html)
+
+
+def _metric_chart():
+    fig = go.Figure()
+    for item in S2_METRICS:
+        _, color, _ = score_band(item["value"])
+        fig.add_trace(
+            go.Bar(
+                x=[item["metric"]],
+                y=[item["value"]],
+                marker_color=color,
+                text=[f"{item['value']}%"],
+                textposition="outside",
+                hovertemplate="%{x}<br>%{y}%<extra></extra>",
+            )
+        )
+    fig.update_layout(
+        barmode="group",
+        height=360,
+        margin=dict(l=10, r=10, t=10, b=60),
+        yaxis=dict(range=[0, 100], title="Score"),
+        showlegend=False,
+    )
+    return fig
 
 
 def run_cognition_tab(readiness_score):
     render_privacy_guardrail(" for cognition")
     st.subheader("S2 Cognition Testing")
 
-    readiness_adjustment = max(0, (100 - readiness_score) * 0.5)
-    tracking = round(min(99, 90 + (readiness_score - 75) * 0.12), 1)
-    perception_speed = round(235 + readiness_adjustment, 1)
-    decision_load = round(min(99, 78 + readiness_score * 0.1), 1)
+    meta1, meta2, meta3 = st.columns(3)
+    meta1.metric("Athlete", ATHLETE_OVERVIEW["label"])
+    meta2.metric("Phase", ATHLETE_OVERVIEW["phase"])
+    meta3.metric("Composite readiness", f"{readiness_score:.1f}%")
 
-    col1, col2, col3 = st.columns(3)
-    col1.metric("Tracking accuracy", f"{tracking}%")
-    col2.metric("Perception speed", f"{perception_speed} ms", delta=f"{235 - perception_speed:.1f}", delta_color="inverse")
-    col3.metric("Decision efficiency", f"{decision_load}%")
+    st.markdown(_score_band_strip(), unsafe_allow_html=True)
 
-    st.caption("S2-style outputs are shown as anonymized demo examples rather than real athlete testing records.")
+    st.plotly_chart(_metric_chart(), use_container_width=True)
 
-    cognition_data = pd.read_csv(TEMPLATE_PATH)
-    fig = px.line(
-        cognition_data,
-        x="Session_Date",
-        y=["Tracking_Accuracy", "Decision_Complexity", "Inhibition_Control"],
-        markers=True,
-        color_discrete_sequence=["#1d4ed8", "#0f766e", "#9333ea"],
-    )
-    fig.update_layout(height=360, margin=dict(l=10, r=10, t=20, b=10), legend_title_text="Metric")
-    st.plotly_chart(fig, use_container_width=True)
+    st.markdown("### Cognitive Profile")
+    for item in S2_METRICS:
+        band, color, bg = score_band(item["value"])
+        st.markdown(
+            f'<div style="background:{bg};border-left:4px solid {color};padding:12px 14px;margin-bottom:10px;border-radius:0 10px 10px 0;">'
+            f'<div style="display:flex;justify-content:space-between;gap:12px;align-items:center;">'
+            f'<div style="font-weight:700;color:#0f172a;">{item["metric"]}</div>'
+            f'<div style="font-weight:700;color:{color};">{item["value"]}% · {band}</div>'
+            f'</div>'
+            f'<div style="font-size:13px;color:#475569;margin-top:6px;">{item["description"]}</div>'
+            f"</div>",
+            unsafe_allow_html=True,
+        )
 
-    reaction_fig = px.bar(
-        cognition_data,
-        x="Session_Date",
-        y="Perception_Speed_ms",
-        color="Perception_Speed_ms",
-        color_continuous_scale=["#dcfce7", "#86efac", "#15803d"],
-    )
-    reaction_fig.update_layout(height=320, margin=dict(l=10, r=10, t=20, b=10), coloraxis_showscale=False)
-    st.plotly_chart(reaction_fig, use_container_width=True)
+    st.markdown("### Coaching Translation")
+    for action in S2_ACTIONS:
+        st.write(f"- {action}")
 
     if readiness_score < 70:
-        st.warning("Cognitive strain is elevated in this scenario. InnerAthlete would typically recommend lighter decision-load work and repeat testing.")
+        st.warning("Current readiness suggests decision speed may be more vulnerable today. Keep decision-load work short and sharp.")
     else:
-        st.success("Current demo profile suggests stable perceptual processing and decision efficiency.")
+        st.success("Current readiness supports normal decision-speed and perceptual training exposure.")

@@ -1,41 +1,53 @@
-import pandas as pd
-import plotly.express as px
 import streamlit as st
 
-from privacy import render_privacy_guardrail
+try:
+    from .mvp_content import ACTION_PLAN, ATHLETE_OVERVIEW, GENOMIC_SUMMARY
+    from .privacy import render_privacy_guardrail
+except ImportError:
+    from mvp_content import ACTION_PLAN, ATHLETE_OVERVIEW, GENOMIC_SUMMARY
+    from privacy import render_privacy_guardrail
 
 
 def run_genomics_tab():
     render_privacy_guardrail(" for genetics")
-    st.subheader("Genetic Testing Summary")
+    st.subheader("Performance Optimization Summary")
 
-    profile = pd.DataFrame(
-        [
-            {"Domain": "Power Expression", "Signal": "ACTN3 pattern", "Interpretation": "Power-speed leaning"},
-            {"Domain": "Soft-Tissue Support", "Signal": "COL5A1 pattern", "Interpretation": "Monitor tendon volume progression"},
-            {"Domain": "Recovery Response", "Signal": "IL6 / TNF pattern", "Interpretation": "Bias toward recovery support after dense blocks"},
-        ]
-    )
-    st.dataframe(profile, use_container_width=True, hide_index=True)
+    col1, col2, col3, col4 = st.columns(4)
+    col1.metric("Athlete", ATHLETE_OVERVIEW["label"])
+    col2.metric("Height / Weight", f"{ATHLETE_OVERVIEW['height']} / {ATHLETE_OVERVIEW['weight']}")
+    col3.metric("Age", ATHLETE_OVERVIEW["age"])
+    col4.metric("Phase", ATHLETE_OVERVIEW["phase"])
 
-    chart_df = pd.DataFrame(
-        {
-            "Category": ["Power", "Recovery", "Tissue Resilience", "Cognitive Load Tolerance"],
-            "Score": [88, 74, 69, 81],
-        }
-    )
-    fig = px.bar(
-        chart_df,
-        x="Category",
-        y="Score",
-        color="Score",
-        color_continuous_scale=["#d9f99d", "#65a30d", "#14532d"],
-        range_y=[0, 100],
-    )
-    fig.update_layout(height=360, margin=dict(l=10, r=10, t=20, b=20), coloraxis_showscale=False)
-    st.plotly_chart(fig, use_container_width=True)
+    st.caption("This tab mirrors the final InnerAthlete one-pager and two-pager structure using anonymized example content.")
+
+    st.markdown("### Top Personal Goals")
+    st.write(" | ".join(f"{idx + 1}. {goal}" for idx, goal in enumerate(ATHLETE_OVERVIEW["goals"])))
+    st.caption(ATHLETE_OVERVIEW["context"])
+
+    st.markdown("### Genomics Summary")
+    summary_cols = st.columns(len(GENOMIC_SUMMARY))
+    for column, (title, bullets) in zip(summary_cols, GENOMIC_SUMMARY.items()):
+        column.markdown(f"**{title}**")
+        for bullet in bullets:
+            column.write(f"- {bullet}")
+
+    st.markdown("### Personalized Insights and Action Plan")
+    plan_cols = st.columns(2)
+    items = list(ACTION_PLAN.items())
+    left_items = items[:3]
+    right_items = items[3:]
+    with plan_cols[0]:
+        for title, bullets in left_items:
+            st.markdown(f"**{title}**")
+            for bullet in bullets:
+                st.write(f"- {bullet}")
+    with plan_cols[1]:
+        for title, bullets in right_items:
+            st.markdown(f"**{title}**")
+            for bullet in bullets:
+                st.write(f"- {bullet}")
 
     st.info(
-        "Genetics should guide context, not destiny. InnerAthlete uses these signals to personalize recovery "
-        "and training conversations rather than to make selection decisions."
+        "InnerAthlete should present genetics as context for training, recovery, sleep, and nutrition conversations. "
+        "It should not present genetics as deterministic or as a selection tool."
     )

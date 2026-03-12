@@ -1,6 +1,5 @@
 """
-WAIMS Readiness Watchlist
-Streamlit web application for athlete monitoring data visualization
+InnerAthlete performance intelligence dashboard.
 """
 
 import os
@@ -59,7 +58,7 @@ if not LOGO_PATH.exists():
     LOGO_PATH = HERE.parent / "assets" / "branding" / "waims_run_man_logo.png"
 
 st.set_page_config(
-    page_title="WAIMS Readiness Watchlist",
+    page_title="InnerAthlete Intelligence Hub",
     page_icon=str(LOGO_PATH) if LOGO_PATH.exists() else "🏀",
     layout="wide",
     initial_sidebar_state="collapsed",
@@ -1012,7 +1011,7 @@ role_label = {
 
 st.markdown(
     f'<div style="display:flex;align-items:center;gap:14px;margin-bottom:6px;">'
-    f'<span style="font-size:24px;font-weight:800;color:#1e3a5f;">🏀 WAIMS</span>'
+    f'<span style="font-size:24px;font-weight:800;color:#1e3a5f;">🏀 InnerAthlete</span>'
     f'<span style="background:{role_color};color:white;padding:3px 12px;border-radius:12px;'
     f'font-size:12px;font-weight:700;">{role_label}</span>'
     f'<span style="font-size:13px;color:#64748b;">{end_date.strftime("%B %d, %Y")}</span>'
@@ -1020,10 +1019,12 @@ st.markdown(
     unsafe_allow_html=True
 )
 
+st.caption("Integrated biomarkers, genetics, S2 cognition, wellness, and readiness workflows.")
+
 # GMs get a focused banner instead of full tab nav
 if role == "gm":
-    st.info("**Executive View** — You can see roster availability and the Command Center summary. "
-            "Detailed wellness, force plate, and raw load data are restricted to performance staff.")
+    st.info("**Executive View** — You can see summary readiness, availability, biomarkers, genetics, and cognition views. "
+            "Detailed raw wellness, force plate, and load data remain restricted to performance staff.")
 
 # Build visible tab list for this role
 visible = get_visible_tabs()   # list of (key, label)
@@ -2115,8 +2116,8 @@ if "gen" in tab_map:
 st.markdown("---")
 st.markdown(
     "<div style='text-align:center;color:#666;'>"
-    "<p><strong>WAIMS</strong> -- Athlete Monitoring System | Python · Streamlit · SQLite</p>"
-    "<p>Elite Women's Basketball demo -- 90 days · 12 players · ~10,000+ data points</p>"
+    "<p><strong>InnerAthlete</strong> | Biomarkers · Genetics · S2 Cognition · Wellness</p>"
+    "<p>Anonymized MVP demo built in Python, Streamlit, and SQLite</p>"
     "</div>",
     unsafe_allow_html=True,
 )
