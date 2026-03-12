@@ -1,16 +1,13 @@
 [theme]
-primaryColor = "#00FFA3" 
-backgroundColor = "#0D1117" 
-secondaryBackgroundColor = "#161B22" 
+primaryColor = "#00FFA3"
+backgroundColor = "#0D1117"
+secondaryBackgroundColor = "#161B22"
 textColor = "#F0F6FC"
 font = "sans serif"
 
 [server]
-# This MUST be false for the browser to pop up automatically
-headless = false
-# This ensures it uses the standard port
+headless = true
 port = 8501
 
 [browser]
-# This tells Streamlit to actively try to open your browser
 gatherUsageStats = false
