@@ -4,10 +4,17 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 
-from waims_bio.biomarker_tab import run_biomarker_tab
-from waims_bio.cognition_tab import run_cognition_tab
-from waims_bio.core.engine import WAIMSEngine
-from waims_bio.genomics_tab import run_genomics_tab
+try:
+    from waims_bio.biomarker_tab import run_biomarker_tab
+    from waims_bio.cognition_tab import run_cognition_tab
+    from waims_bio.core.engine import WAIMSEngine
+    from waims_bio.genomics_tab import run_genomics_tab
+except ModuleNotFoundError:
+    from biomarker_tab import run_biomarker_tab
+    from cognition_tab import run_cognition_tab
+    from core.engine import WAIMSEngine
+    from genomics_tab import run_genomics_tab
+
 
 
 
