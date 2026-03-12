@@ -1,186 +1,80 @@
-# How to Add Athlete Profile Tab to Your Dashboard
+# InnerAthlete Profile Integration Notes
 
-## Step 1: Copy the module file
-
-Save `athlete_profile_tab.py` in your `waims-python` directory:
-```
-waims-python/
-├── dashboard.py
-├── athlete_profile_tab.py  ← NEW FILE
-└── ...
-```
-
-## Step 2: Update your dashboard.py
-
-### A. Add import at the top (around line 14):
-
-```python
-from athlete_profile_tab import athlete_profile_tab, create_radar_chart
-```
-
-### B. Update the tabs line (around line 290):
-
-**FIND THIS:**
-```python
-tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
-    "📊 Today's Readiness", 
-    "📈 Trends", 
-    "💪 Force Plate", 
-    "🚨 Injuries", 
-    "🤖 ML Predictions",
-    "🔍 Smart Query"
-])
-```
-
-**REPLACE WITH:**
-```python
-tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
-    "📊 Today's Readiness", 
-    "📈 Trends", 
-    "💪 Force Plate", 
-    "🚨 Injuries", 
-    "🤖 ML Predictions",
-    "🔍 Smart Query",
-    "👤 Athlete Profiles"  # NEW TAB
-])
-```
-
-### C. Add Tab 7 at the end (after tab6 closes, before the footer):
-
-```python
-# ==============================================================================
-# TAB 7: ATHLETE PROFILES
-# ==============================================================================
-
-with tab7:
-    athlete_profile_tab(wellness, training_load, acwr, force_plate, players)
-```
-
-## Step 3: Test it locally
-
-```bash
-cd waims-python
-streamlit run dashboard.py
-```
-
-Should see 7 tabs now, with "👤 Athlete Profiles" as the last tab.
-
-## Step 4: Deploy to Streamlit Cloud
-
-```bash
-# Commit both files
-git add dashboard.py athlete_profile_tab.py
-git commit -m "Add athlete profile tab with radar charts"
-git push
-
-# Streamlit Cloud will auto-deploy
-```
+This note explains how athlete-profile style views fit into the current project.
 
 ---
 
-## What You Get
+## Current Reality
 
-### Profile Features:
-✅ Athlete photo placeholder (can add real photos later)
-✅ Radar chart showing 5 performance dimensions
-✅ Today's status with color-coded readiness
-✅ Key metrics cards (sleep, soreness, mood, stress)
-✅ Workload management (ACWR, training load)
-✅ Neuromuscular data (CMJ, RSI if available)
-✅ 7-day trend charts (sleep, soreness, mood, stress, ACWR)
-✅ Automated alerts based on research thresholds
-✅ Personalized recommendations
-✅ Research references
+You do not need to manually add a new athlete profile tab from scratch anymore.
 
-### Radar Chart Dimensions:
-1. **Sleep Quality** - Hours relative to 8hr target
-2. **Physical Readiness** - Inverse of soreness
-3. **Mental Wellness** - Mood score
-4. **Load Balance** - ACWR optimization
-5. **Neuromuscular** - CMJ/RSI performance
+The main app already includes:
+- `dashboard.py`
+- `athlete_profile_tab.py`
+- role-based tab visibility through `auth.py`
+
+The more relevant integration task now is deciding how much of the athlete profile experience should remain part of the larger monitoring workflow versus how much should be mirrored into the InnerAthlete-specific experience.
 
 ---
 
-## Adding Real Photos Later
+## Current Main App Behavior
 
-### Option 1: URL-based (easiest)
+In the main app:
+- athlete profiles are part of the larger monitoring workflow
+- access is role-aware
+- the profile view still leans on the legacy monitoring model
 
-Update line in `athlete_profile_tab.py`:
-
-```python
-# Replace this:
-st.image(
-    "https://via.placeholder.com/200x250/2E86AB/FFFFFF?text=" + selected_athlete.replace("_", "+"),
-    ...
-)
-
-# With this:
-photo_urls = {
-    "ATH_001": "https://yoursite.com/photos/ath001.jpg",
-    "ATH_002": "https://yoursite.com/photos/ath002.jpg",
-    # ... etc
-}
-
-photo_url = photo_urls.get(selected_athlete, "https://via.placeholder.com/200x250")
-st.image(photo_url, ...)
-```
-
-### Option 2: Local files
-
-```python
-import os
-from PIL import Image
-
-photo_path = f"photos/{selected_athlete}.jpg"
-if os.path.exists(photo_path):
-    st.image(photo_path, ...)
-else:
-    st.image("photos/default.jpg", ...)
-```
+This means the profile view is useful for:
+- readiness context
+- training-load context
+- force-plate context
+- athlete-by-athlete review
 
 ---
 
-## Customization Ideas
+## InnerAthlete Direction
 
-### 1. Add more metrics to radar chart:
+The newer InnerAthlete MVP is more report-oriented and recommendation-oriented.
 
-Edit `create_radar_chart()` function to include:
-- Recovery score
-- Training volume
-- Competition readiness
-- Nutrition compliance
-- Hydration status
+That means profile-style work should gradually emphasize:
+- anonymized athlete summary
+- biomarker flags and ranges
+- genetics domains
+- S2 cognition domains
+- practical action plans
 
-### 2. Add injury history timeline:
-
-```python
-injury_history = injuries[injuries['player_id'] == athlete_id]
-if len(injury_history) > 0:
-    st.markdown("### 🏥 Injury History")
-    for _, inj in injury_history.iterrows():
-        st.markdown(f"- **{inj['injury_type']}** on {inj['injury_date']} ({inj['days_missed']} days)")
-```
-
-### 3. Add comparison to team average:
-
-```python
-team_avg_sleep = wellness[wellness['date'] == latest_date]['sleep_hours'].mean()
-athlete_vs_team = latest_wellness['sleep_hours'] - team_avg_sleep
-
-st.metric("Sleep", 
-         f"{latest_wellness['sleep_hours']:.1f} hrs",
-         delta=f"{athlete_vs_team:+.1f} vs team avg")
-```
+instead of only:
+- dashboard-style monitoring mechanics
 
 ---
 
-## Interview Talking Points
+## Integration Guidance
 
-*"I added individual athlete profile pages with radar charts to visualize multi-dimensional performance. Each athlete gets a personalized dashboard showing their status, trends, and automated alerts based on research thresholds. The radar chart makes it easy to see at a glance which areas need attention - if sleep quality is low but everything else is good, you know exactly what to focus on. This is similar to what NBA teams use for player monitoring."*
+If you extend profile views in this repo, prefer:
 
-**Shows:**
-✅ User-centered design (different views for different needs)
-✅ Data visualization skills (radar charts)
-✅ Personalization
-✅ Professional UI/UX
-✅ Real-world application
+1. keeping the main `athlete_profile_tab.py` stable for the broader monitoring app
+2. building new InnerAthlete-specific profile/report experiences in `waims_bio/`
+3. using anonymized IDs only
+4. avoiding direct upload of raw real-athlete PDFs or clinical exports
+
+---
+
+## Good Next Steps
+
+Useful future profile enhancements:
+- add a biomarker summary block to the main athlete profile workflow
+- add a genetics summary block with domain-level takeaways
+- add S2 cognition profile blocks with score-band interpretation
+- add a recommendation panel that combines wellness, biomarkers, genetics, and cognition
+
+---
+
+## Privacy Reminder
+
+If profile content is derived from external reports:
+- strip names
+- strip DOB
+- strip report identifiers
+- replace with codes like `ATH-001`
+
+The repo should remain safe to share as a portfolio/demo project.
