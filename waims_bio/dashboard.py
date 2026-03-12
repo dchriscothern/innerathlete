@@ -16,8 +16,6 @@ except ModuleNotFoundError:
     from genomics_tab import run_genomics_tab
 
 
-
-
 BASE_DIR = Path(__file__).resolve().parent
 
 st.set_page_config(page_title="InnerAthlete Intelligence Hub", layout="wide")
