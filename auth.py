@@ -59,17 +59,17 @@ TAB_ACCESS = {
 
 
 TAB_LABELS = {
-    "cc": "Command Center",
-    "rd": "Today's Readiness",
-    "ap": "Athlete Profiles",
-    "tr": "Trends & Load",
-    "jt": "Jump Testing",
-    "inj": "Availability & Injuries",
-    "fc": "Forecast",
-    "ins": "Insights",
-    "bio": "Biomarkers",
-    "cog": "S2 Cognition",
-    "gen": "Genetics",
+    "cc": "🏀 Command Center",
+    "rd": "📊 Today's Readiness",
+    "ap": "👤 Athlete Profiles",
+    "tr": "📈 Trends & Load",
+    "jt": "💪 Jump Testing",
+    "inj": "🚨 Availability & Injuries",
+    "fc": "🔮 Forecast",
+    "ins": "🔍 Insights",
+    "bio": "🧪 Biomarkers",
+    "cog": "🧠 S2 Cognition",
+    "gen": "🧬 Genetics",
 }
 
 
