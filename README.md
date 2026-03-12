@@ -122,6 +122,8 @@ WAIMS V1 does not operate as a validated injury classifier — the Forecast tab 
 
 ## Pipeline
 
+**Canonical database generator:** `generate_database.py` creates the full demo DB (schema, 90-day data, schedule). Use it for standard setup.
+
 ```
 1. python generate_database.py     # always first
 2. python espn_data.py             # optional, one-time ESPN fetch

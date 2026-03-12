@@ -1,5 +1,6 @@
 """
 WAIMS Demo Data Generator — 2025 Dallas Wings inspired roster (anonymized)
+Alternative to generate_database.py: use generate_database.py for standard setup.
 All player IDs match the ath_key format used in athlete_profile_tab.py (ath_001 etc.)
 
 Real roster mapped to anonymized IDs:

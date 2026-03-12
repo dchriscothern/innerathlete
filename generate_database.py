@@ -465,8 +465,6 @@ conn.commit()
 print("✓ Analytical view created")
 
 # ==============================================================================
-
-# ==============================================================================
 # 10b. SCHEDULE TABLE — 2026 Dallas Wings (real dates + context flags)
 # Reference: wings.wnba.com/news/wings-announce-2026-schedule (Jan 21, 2026)
 # Unrivaled players: G1 (Breeze BC), G2 (Mist BC) — anonymized for demo
@@ -587,6 +585,7 @@ print("  Back-to-backs flagged: May 9 (none), July 7+10, Aug 25, Sept 19+21")
 print("  AAC venue games: July 12, Aug 7, Aug 20")
 print("  FIBA break: Aug 31 – Sep 16 (18 days rest before Sept 17 return)")
 
+# ==============================================================================
 # 11. SUMMARY
 # ==============================================================================
 

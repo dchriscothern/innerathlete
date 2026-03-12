@@ -1,6 +1,7 @@
 """
 WAIMS Python - Research-Validated Data Generator
-Creates database with injuries based on actual risk factors from research
+Alternative to generate_database.py: use generate_database.py for standard setup.
+Creates database with injuries based on actual risk factors from research.
 
 Key Research:
 - Gabbett (2016): ACWR > 1.5 → 2.4x injury risk
