@@ -1,0 +1,7 @@
+Date,Metric,Value,Status,Athlete_Code
+2026-01-10,Cortisol,18.4,Optimal,ATH-001
+2026-02-10,Cortisol,22.1,Elevated,ATH-001
+2026-03-10,Cortisol,19.2,Stabilizing,ATH-001
+2026-01-10,Vitamin D,36.0,Optimal,ATH-001
+2026-02-10,Vitamin D,31.5,Watch,ATH-001
+2026-03-10,Vitamin D,38.2,Recovered,ATH-001
