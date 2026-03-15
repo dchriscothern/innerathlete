@@ -1,7 +1,7 @@
 """
 research_topics_config.py
 ==========================
-Tightened PubMed search topics for WAIMS evidence monitor.
+Tightened PubMed search topics for InnerAthlete evidence monitor.
 Replace the SEARCH_TOPICS list in research_monitor.py with this.
 
 Philosophy:
@@ -58,7 +58,7 @@ SEARCH_TOPICS = [
     },
 
     # ── DECELERATION SPECIFICALLY ─────────────────────────────────────────────
-    # Key signal in WAIMS — deserves its own query
+    # Key signal in InnerAthlete — deserves its own query
     {
         "topic": "deceleration_injury_risk",
         "query": '(deceleration[Title/Abstract] OR "high-speed deceleration"[Title/Abstract]) AND (injury[Title/Abstract] OR "ACL"[Title/Abstract] OR "hamstring"[Title/Abstract]) AND (sport[Title/Abstract] OR athlete[Title/Abstract])',
@@ -70,7 +70,7 @@ SEARCH_TOPICS = [
     {
         "topic": "female_athlete_monitoring",
         "query": '("female athlete"[Title/Abstract] OR "women\'s basketball"[Title/Abstract] OR "female basketball"[Title/Abstract]) AND (load[Title/Abstract] OR monitoring[Title/Abstract] OR recovery[Title/Abstract] OR readiness[Title/Abstract] OR injury[Title/Abstract])',
-        "waims_relevance": "Female-specific thresholds — core WAIMS design principle",
+        "waims_relevance": "Female-specific thresholds — core InnerAthlete design principle",
         "min_quality_gate": "WATCHLIST",
     },
 

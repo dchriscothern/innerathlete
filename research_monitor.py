@@ -1,13 +1,13 @@
 """
-WAIMS Evidence Review System
+InnerAthlete Evidence Review System
 =============================
-Automated monitoring of new sports science research relevant to WAIMS thresholds,
+Automated monitoring of new sports science research relevant to InnerAthlete thresholds,
 signals, and methodology. Combines PubMed primary literature with expert practitioner
 RSS feeds.
 
 FORMAL EVIDENCE REVIEW POLICY (Orlando Magic-style)
 ----------------------------------------------------
-No threshold or weighting change in WAIMS without a supporting meta-analysis or
+No threshold or weighting change in InnerAthlete without a supporting meta-analysis or
 systematic review. Single new studies go to WATCHLIST, not production.
 
 Purpose: FORWARD-LOOKING INBOX only.
@@ -18,7 +18,7 @@ Purpose: FORWARD-LOOKING INBOX only.
 Decision ladder:
   WATCHLIST  -> interesting, single study, monitor for replication
   CANDIDATE  -> appears in meta-analysis/SR; schedule formal staff review
-  APPROVED   -> reviewed by performance staff, approved for WAIMS update
+  APPROVED   -> reviewed by performance staff, approved for InnerAthlete update
   INTEGRATED -> change made to code, RESEARCH_FOUNDATION.md, README, roadmap
   REJECTED   -> reviewed, not applicable (wrong population, sport, etc.)
 
@@ -316,7 +316,7 @@ def fetch_rss(source, days):
     cutoff = datetime.now() - timedelta(days=days)
     items  = []
     try:
-        req  = urllib.request.Request(source["url"], headers={"User-Agent": "WAIMS-ResearchMonitor/1.0"})
+        req  = urllib.request.Request(source["url"], headers={"User-Agent": "InnerAthlete-ResearchMonitor/1.0"})
         resp = urllib.request.urlopen(req, timeout=15)
         root = ET.fromstring(resp.read())
         ns   = {"atom": "http://www.w3.org/2005/Atom"}
@@ -460,7 +460,7 @@ def generate_html(pubmed_papers, rss_items, days):
   <div style="font-size:12px;color:#475569;margin-bottom:4px;">{src}{' | ' if src and jrn else ''}<em>{jrn}</em></div>
   {excpt}
   <div style="background:#f0f9ff;border-radius:4px;padding:5px 10px;font-size:11px;color:#0369a1;margin-bottom:6px;">
-    <b>WAIMS:</b> {p.get('waims_signal','')}
+    <b>InnerAthlete:</b> {p.get('waims_signal','')}
   </div>
   <div style="background:#fefce8;border-radius:4px;padding:5px 10px;font-size:11px;color:#713f12;margin-bottom:8px;">
     <b>Gate:</b> {p.get('gate_note','')}
@@ -493,7 +493,7 @@ def generate_html(pubmed_papers, rss_items, days):
 </head>
 <body>
   <div style="background:#1e3a5f;color:white;border-radius:8px;padding:20px 28px;margin-bottom:20px;">
-    <div style="font-size:22px;font-weight:700;">WAIMS Evidence Review System</div>
+    <div style="font-size:22px;font-weight:700;">InnerAthlete Evidence Review System</div>
     <div style="margin-top:6px;opacity:.85;">{date_str} | Last {days} days |
     {len(pubmed_papers)} PubMed | {len(rss_items)} practitioner articles</div>
   </div>
@@ -503,7 +503,7 @@ def generate_html(pubmed_papers, rss_items, days):
   </div>
   {body}
   <p style="text-align:center;color:#94a3b8;font-size:12px;margin-top:40px;">
-    WAIMS Evidence Review -- PubMed E-utilities + public RSS feeds
+    InnerAthlete Evidence Review -- PubMed E-utilities + public RSS feeds
   </p>
 </body>
 </html>"""
@@ -517,7 +517,7 @@ def generate_html(pubmed_papers, rss_items, days):
 # ==============================================================================
 GITHUB_YAML = """\
 # .github/workflows/research_monitor.yml
-name: WAIMS Evidence Review
+name: InnerAthlete Evidence Review
 on:
   schedule:
     - cron: '0 8 * * 1'
@@ -533,8 +533,8 @@ jobs:
       - run: python research_monitor.py --days 7 --save --html
       - name: Commit results
         run: |
-          git config user.name "WAIMS Evidence Monitor"
-          git config user.email "monitor@waims"
+          git config user.name "InnerAthlete Evidence Monitor"
+          git config user.email "monitor@innerathlete"
           git add research_log.json research_report_*.html 2>/dev/null || true
           git diff --staged --quiet || git commit -m "Evidence review $(date +%Y-%m-%d)"
           git push
@@ -548,7 +548,7 @@ jobs:
 # ==============================================================================
 def run_monitor(days=7, save=False, html=False, output_path="research_log.json"):
     print(f"\n{'='*60}")
-    print(f"  WAIMS Evidence Review -- last {days} days (new research only)")
+    print(f"  InnerAthlete Evidence Review -- last {days} days (new research only)")
     print(f"  {datetime.now().strftime('%B %d, %Y  %H:%M')}")
     print(f"{'='*60}\n")
 
@@ -652,7 +652,7 @@ def run_monitor(days=7, save=False, html=False, output_path="research_log.json")
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="WAIMS Evidence Review System")
+    parser = argparse.ArgumentParser(description="InnerAthlete Evidence Review System")
     parser.add_argument("--days",          type=int, default=7)
     parser.add_argument("--save",          action="store_true")
     parser.add_argument("--html",          action="store_true")

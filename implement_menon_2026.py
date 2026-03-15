@@ -1,5 +1,5 @@
 """
-WAIMS Python - Update with Menon 2026 Research
+InnerAthlete - Update with Menon 2026 Research
 Implementation guide for adding WNBA-specific risk factors
 
 Research: Age, Workload, and Usage Rate: Risk Factors Associated With 

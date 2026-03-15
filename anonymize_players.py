@@ -1,5 +1,5 @@
 """
-WAIMS - Anonymize Player Names
+InnerAthlete - Anonymize Player Names
 Replaces real athlete names with generic identifiers
 
 Run this to make your demo privacy-safe!

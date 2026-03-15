@@ -1,5 +1,5 @@
 """
-WAIMS Python - Multi-Team WNBA Data Pipeline
+InnerAthlete - Multi-Team WNBA Data Pipeline
 Fetches game data for ALL 12 WNBA teams across multiple seasons
 
 This creates a much larger, more robust training dataset for ML models.
@@ -14,7 +14,7 @@ from datetime import datetime, timedelta
 import sys
 
 print("=" * 70)
-print("WAIMS - MULTI-TEAM WNBA DATA PIPELINE")
+print("InnerAthlete - MULTI-TEAM WNBA DATA PIPELINE")
 print("=" * 70)
 
 # ==============================================================================

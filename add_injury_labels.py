@@ -1,5 +1,5 @@
 """
-WAIMS Python - Add Public Injury Labels
+InnerAthlete - Add Public Injury Labels
 Integrates publicly reported WNBA injuries into the training dataset
 
 This script shows you how to add real injury data from public sources.
@@ -22,7 +22,7 @@ import sqlite3
 from datetime import datetime, timedelta
 
 print("=" * 70)
-print("WAIMS - ADD PUBLIC INJURY LABELS")
+print("InnerAthlete - ADD PUBLIC INJURY LABELS")
 print("=" * 70)
 
 # ==============================================================================

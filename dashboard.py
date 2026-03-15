@@ -20,6 +20,15 @@ from coach_command_center import coach_command_center
 from correlation_explorer import correlation_explorer_tab
 from auth import (render_login_page, render_user_badge, is_authenticated,
                   current_role, can_see, data_access, get_visible_tabs)
+from innerathlete_views import (
+    render_blood_snapshot,
+    render_brain_snapshot,
+    render_dna_snapshot,
+    render_how_it_works,
+    render_performance_map,
+    render_personalized_plan,
+    render_why_it_matters,
+)
 
 try:
     from waims_bio.biomarker_tab import run_biomarker_tab
@@ -52,14 +61,12 @@ except ImportError:
 # PAGE CONFIG
 # ==============================================================================
 
-HERE      = Path(__file__).resolve().parent
-LOGO_PATH = HERE / "assets" / "branding" / "waims_run_man_logo.png"
-if not LOGO_PATH.exists():
-    LOGO_PATH = HERE.parent / "assets" / "branding" / "waims_run_man_logo.png"
+HERE = Path(__file__).resolve().parent
+LOGO_PATH = HERE / "assets" / "branding" / "innerathlete" / "innerathlete-icon-dark.svg"
 
 st.set_page_config(
     page_title="InnerAthlete Intelligence Hub",
-    page_icon=str(LOGO_PATH) if LOGO_PATH.exists() else "🏀",
+    page_icon=str(LOGO_PATH) if LOGO_PATH.exists() else "IA",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
@@ -1000,18 +1007,27 @@ role = current_role()
 
 # Role-aware title strip
 role_color = {
+    "investor_demo": "#0f766e",
+    "coach_preview": "#1d4ed8",
+    "medical_preview": "#7c3aed",
+    "executive_preview": "#b45309",
     "head_coach": "#1e3a5f", "asst_coach": "#2563eb",
-    "sport_scientist": "#059669", "medical": "#7c3aed", "gm": "#b45309"
+    "sport_scientist": "#059669", "medical": "#7c3aed", "gm": "#b45309",
+    "athlete": "#0ea5e9",
 }.get(role, "#6b7280")
 role_label = {
+    "investor_demo": "Investor Demo",
+    "coach_preview": "Coach Preview",
+    "medical_preview": "Medical Preview",
+    "executive_preview": "Executive Preview",
     "head_coach": "Head Coach", "asst_coach": "Asst. Coach",
     "sport_scientist": "Sport Scientist", "medical": "Medical / AT",
-    "gm": "General Manager"
+    "gm": "General Manager", "athlete": "Athlete Preview",
 }.get(role, role)
 
 st.markdown(
     f'<div style="display:flex;align-items:center;gap:14px;margin-bottom:6px;">'
-    f'<span style="font-size:24px;font-weight:800;color:#1e3a5f;">🏀 InnerAthlete</span>'
+    f'<span style="font-size:24px;font-weight:800;color:#0f172a;">InnerAthlete</span>'
     f'<span style="background:{role_color};color:white;padding:3px 12px;border-radius:12px;'
     f'font-size:12px;font-weight:700;">{role_label}</span>'
     f'<span style="font-size:13px;color:#64748b;">{end_date.strftime("%B %d, %Y")}</span>'
@@ -1019,12 +1035,23 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-st.caption("Integrated biomarkers, genetics, S2 cognition, wellness, and readiness workflows.")
+if role == "investor_demo":
+    st.caption("Hidden product walkthrough focused on how InnerAthlete turns Blood, DNA, and Brain inputs into a personalized plan.")
+elif role in ("coach_preview", "medical_preview", "executive_preview"):
+    st.caption("Public preview login focused on the InnerAthlete product story without exposing the deeper WAIMS operational workspace.")
+elif role == "athlete":
+    st.caption("Future athlete self-service preview built on the same Blood, DNA, Brain, and plan architecture.")
+else:
+    st.caption("Integrated product and platform view across Blood, DNA, Brain, wellness, readiness, and staff workflows.")
 
 # GMs get a focused banner instead of full tab nav
 if role == "gm":
     st.info("**Executive View** — You can see summary readiness, availability, biomarkers, genetics, and cognition views. "
             "Detailed raw wellness, force plate, and load data remain restricted to performance staff.")
+elif role == "investor_demo":
+    st.info("This hidden login opens the product demo only. Operational monitoring tabs remain restricted to practitioner roles.")
+elif role in ("coach_preview", "medical_preview", "executive_preview"):
+    st.info("This public preview stays in the InnerAthlete product layer. Internal practitioner monitoring tabs are hidden from these demo accounts.")
 
 # Build visible tab list for this role
 visible = get_visible_tabs()   # list of (key, label)
@@ -1033,6 +1060,71 @@ tab_labels = [v[1] for v in visible]
 
 rendered_tabs = st.tabs(tab_labels)
 tab_map = dict(zip(tab_keys, rendered_tabs))
+
+if "ov" in tab_map:
+    with tab_map["ov"]:
+        render_performance_map(role)
+
+
+if "bio" in tab_map:
+    with tab_map["bio"]:
+        render_blood_snapshot()
+        st.markdown("---")
+        if HAVE_INNERATHLETE_TABS:
+            st.caption("InnerAthlete blood module. Upload anonymized examples only.")
+            run_biomarker_tab()
+        else:
+            st.warning("InnerAthlete blood module not available. Check files in `waims_bio`.")
+
+
+if "gen" in tab_map:
+    with tab_map["gen"]:
+        render_dna_snapshot()
+        st.markdown("---")
+        if HAVE_INNERATHLETE_TABS:
+            st.caption("InnerAthlete DNA module. Genetics content is contextual, anonymized, and non-deterministic.")
+            run_genomics_tab()
+        else:
+            st.warning("InnerAthlete DNA module not available. Check files in `waims_bio`.")
+
+
+if "cog" in tab_map:
+    with tab_map["cog"]:
+        render_brain_snapshot()
+        st.markdown("---")
+        if HAVE_INNERATHLETE_TABS:
+            st.caption("InnerAthlete brain module. S2-style cognition view uses anonymized sample data.")
+            sample_readiness = 78
+            if len(wellness) > 0:
+                today = wellness[wellness["date"] == pd.to_datetime(end_date)].copy()
+                if len(today) > 0:
+                    sample_readiness = round(
+                        (
+                            (today["sleep_hours"].fillna(7.5) / 8) * 30
+                            + ((10 - today["soreness"].fillna(4)) / 10) * 25
+                            + ((10 - today["stress"].fillna(4)) / 10) * 25
+                            + (today["mood"].fillna(7) / 10) * 20
+                        ).mean(),
+                        1,
+                    )
+            run_cognition_tab(sample_readiness)
+        else:
+            st.warning("InnerAthlete brain module not available. Check files in `waims_bio`.")
+
+
+if "how" in tab_map:
+    with tab_map["how"]:
+        render_how_it_works()
+
+
+if "why" in tab_map:
+    with tab_map["why"]:
+        render_why_it_matters()
+
+
+if "plan" in tab_map:
+    with tab_map["plan"]:
+        render_personalized_plan(role)
 
 # ── Command Center ────────────────────────────────────────────────────────────
 if "cc" in tab_map:
@@ -1884,7 +1976,7 @@ if "ins" in tab_map:
                 st.markdown("""
     **V1 (Current): Does the readiness score match coach intuition?**
 
-    WAIMS does not currently operate as a trained injury classifier. The Forecast tab
+    InnerAthlete does not currently operate as a trained injury classifier. The Forecast tab
     produces a heuristic risk score — not a validated predictive model. This is intentional.
     Without a full season of real-team injury events, formal classification validation
     would overstate confidence.
@@ -1902,7 +1994,7 @@ if "ins" in tab_map:
         st.markdown("---")
         st.markdown("### Evidence Review")
         st.caption(
-            "Formal evidence review policy: no WAIMS threshold change without a "
+            "Formal evidence review policy: no InnerAthlete threshold change without a "
             "meta-analysis or systematic review. Papers flagged weekly by GitHub Actions. "
             "Decide here -- decisions saved to research_log.json."
         )
@@ -1995,7 +2087,7 @@ if "ins" in tab_map:
                     f'</div>'
                     f'<div style="font-size:13px;font-weight:600;color:#0f172a;margin-bottom:3px;word-wrap:break-word;white-space:normal;">{_p.get("title","Unknown")[:200]}</div>'
                     f'<div style="font-size:11px;color:#475569;margin-bottom:4px;">{_p.get("authors","")} | <em>{_p.get("journal","")}</em> | {_p.get("pub_date","?")}</div>'
-                    f'<div style="font-size:11px;background:#f0f9ff;padding:3px 8px;border-radius:3px;color:#0369a1;margin-bottom:3px;">WAIMS: {_p.get("waims_signal","?")}</div>'
+                    f'<div style="font-size:11px;background:#f0f9ff;padding:3px 8px;border-radius:3px;color:#0369a1;margin-bottom:3px;">InnerAthlete signal: {_p.get("waims_signal","?")}</div>'
                     f'<div style="font-size:11px;background:#fefce8;padding:3px 8px;border-radius:3px;color:#713f12;">{_p.get("gate_note","")[:120]}</div>'
                     f'</div>',
                     unsafe_allow_html=True
@@ -2040,9 +2132,9 @@ if "ins" in tab_map:
                 st.markdown("---")
                 with st.expander(f"Integration queue -- {len(_int_papers)} approved, awaiting code update"):
                     st.info(
-                        "These papers are approved. To activate in WAIMS thresholds, "
+                        "These papers are approved. To activate them in InnerAthlete thresholds, "
                         "start a session with Claude and say: "
-                        "'These papers are approved in my evidence log -- please integrate them into WAIMS.'"
+                        "'These papers are approved in my evidence log -- please integrate them into InnerAthlete.'"
                     )
                     for _ip in _int_papers:
                         st.markdown(
@@ -2067,48 +2159,6 @@ if "ins" in tab_map:
         correlation_explorer_tab(wellness, training_load, force_plate, acwr, injuries, players)
 
 
-if "bio" in tab_map:
-    with tab_map["bio"]:
-        if HAVE_INNERATHLETE_TABS:
-            st.caption("InnerAthlete demo module. Upload anonymized examples only.")
-            run_biomarker_tab()
-        else:
-            st.warning("InnerAthlete biomarker module not available. Check files in `waims_bio`.")
-
-
-if "cog" in tab_map:
-    with tab_map["cog"]:
-        if HAVE_INNERATHLETE_TABS:
-            st.caption("InnerAthlete demo module. S2-style cognition view uses anonymized sample data.")
-            sample_readiness = 78
-            if len(wellness) > 0:
-                today = wellness[wellness["date"] == pd.to_datetime(end_date)].copy()
-                if len(today) > 0:
-                    sample_readiness = round(
-                        (
-                            (today["sleep_hours"].fillna(7.5) / 8) * 30
-                            + ((10 - today["soreness"].fillna(4)) / 10) * 25
-                            + ((10 - today["stress"].fillna(4)) / 10) * 25
-                            + (today["mood"].fillna(7) / 10) * 20
-                        ).mean(),
-                        1,
-                    )
-            run_cognition_tab(sample_readiness)
-        else:
-            st.warning("InnerAthlete cognition module not available. Check files in `waims_bio`.")
-
-
-if "gen" in tab_map:
-    with tab_map["gen"]:
-        if HAVE_INNERATHLETE_TABS:
-            st.caption("InnerAthlete demo module. Genetics content is contextual and anonymized.")
-            run_genomics_tab()
-        else:
-            st.warning("InnerAthlete genetics module not available. Check files in `waims_bio`.")
-
-
-
-
 # ==============================================================================
 # FOOTER
 # ==============================================================================
@@ -2116,8 +2166,8 @@ if "gen" in tab_map:
 st.markdown("---")
 st.markdown(
     "<div style='text-align:center;color:#666;'>"
-    "<p><strong>InnerAthlete</strong> | Biomarkers · Genetics · S2 Cognition · Wellness</p>"
-    "<p>Anonymized MVP demo built in Python, Streamlit, and SQLite</p>"
+    "<p><strong>InnerAthlete</strong> | Blood · DNA · Brain · Personalized Plan</p>"
+    "<p>Privacy-first demo platform built with anonymized content in Python, Streamlit, and SQLite.</p>"
     "</div>",
     unsafe_allow_html=True,
 )

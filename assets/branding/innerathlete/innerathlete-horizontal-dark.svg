@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 320" role="img" aria-label="InnerAthlete horizontal lockup dark">
+  <rect width="1400" height="320" fill="#ffffff"/>
+  <polygon points="74,256 154,64 214,64 128,256" fill="#070917"/>
+  <polygon points="246,256 194,148 142,256" fill="#070917"/>
+  <polygon points="170,108 230,108 200,170" fill="#ffffff"/>
+  <text x="292" y="130" font-family="Arial, Helvetica, sans-serif" font-size="94" font-weight="800" letter-spacing="3" fill="#070917">INNER</text>
+  <text x="292" y="238" font-family="Arial, Helvetica, sans-serif" font-size="94" font-weight="800" letter-spacing="3" fill="#070917">ATHLETE</text>
+  <text x="1245" y="92" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="700" fill="#070917">TM</text>
+</svg>

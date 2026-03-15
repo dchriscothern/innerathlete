@@ -1,5 +1,5 @@
 """
-WAIMS Unit Tests
+InnerAthlete Unit Tests
 ================
 Tests for core logic: readiness formula, query parsing,
 z-score calculations, data quality, sport config, and auth.
@@ -114,7 +114,7 @@ class TestReadinessFormula:
 # ==============================================================================
 
 class TestQueryParsing:
-    """Tests for the Ask the Watchlist query parser."""
+    """Tests for the Smart Query query parser."""
 
     def _parse(self, text):
         """Replicate parse_query logic from dashboard.py"""

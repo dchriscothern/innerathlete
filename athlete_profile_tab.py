@@ -1175,7 +1175,7 @@ def athlete_profile_tab(wellness, training_load, acwr, force_plate, players, inj
     # research_log.json and HTML report. Only APPROVED papers appear here.
     # ── EVIDENCE BASE ─────────────────────────────────────────────────────────
     # Two sections:
-    #   1. Active thresholds table — what's running in WAIMS today
+    #   1. Active thresholds table — what's running in InnerAthlete today
     #   2. Evidence monitor queue — reads research_log.json dynamically
     #      Papers marked PENDING show as "under review"
     #      Papers marked INTEGRATED move to active thresholds (manual code update)
@@ -1270,7 +1270,7 @@ def athlete_profile_tab(wellness, training_load, acwr, force_plate, players, inj
                                     f'{p.get("authors","")} · {p.get("journal","")} · '
                                     f'{p.get("pub_date","?")}</span><br>'
                                     f'<span style="font-size:10px;color:#0369a1;">'
-                                    f'WAIMS: {p.get("waims_signal","?")[:80]}</span>'
+                                    f'InnerAthlete signal: {p.get("waims_signal","?")[:80]}</span>'
                                     f'</div>',
                                     unsafe_allow_html=True
                                 )

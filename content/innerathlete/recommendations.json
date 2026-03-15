@@ -1,0 +1,46 @@
+[
+  {
+    "id": "sleep_foundation",
+    "domain": "Recovery",
+    "trigger_tags": ["sleep", "recovery", "stress_management"],
+    "headline": "Protect sleep as the first recovery lever",
+    "athlete_copy": "Aim for consistent bedtime habits, reduced late caffeine, and a dark cool room.",
+    "coach_copy": "Keep the recovery message simple: sleep quality improves readiness, cognition, and adaptation.",
+    "practitioner_copy": "Use sleep as the first intervention before adding advanced modalities.",
+    "priority": "high",
+    "mode": "all"
+  },
+  {
+    "id": "anti_inflammatory_nutrition",
+    "domain": "Nutrition",
+    "trigger_tags": ["anti_inflammatory_nutrition", "nutrition", "micronutrients"],
+    "headline": "Use fueling and food quality to support recovery",
+    "athlete_copy": "Prioritize consistent carbohydrates around work and include nutrient-dense recovery foods.",
+    "coach_copy": "Tie nutrition support to energy, recovery, and repeatability, not body-shaming language.",
+    "practitioner_copy": "Blend blood context, training phase, and behavior before recommending supplements.",
+    "priority": "high",
+    "mode": "all"
+  },
+  {
+    "id": "decision_load_progression",
+    "domain": "Brain",
+    "trigger_tags": ["cognition", "decision_speed", "read_react"],
+    "headline": "Progress decision-load drills intentionally",
+    "athlete_copy": "Use short, sharp read-react drills and build complexity gradually.",
+    "coach_copy": "Layer unpredictable cues carefully when readiness or fatigue is down.",
+    "practitioner_copy": "Use cognition results to guide drill design, not to label ceiling or role fit.",
+    "priority": "medium",
+    "mode": "all"
+  },
+  {
+    "id": "monitor_longitudinally",
+    "domain": "Monitoring",
+    "trigger_tags": ["monitoring_cadence", "load_monitoring"],
+    "headline": "Interpret signals longitudinally",
+    "athlete_copy": "One score never defines you. Trends are more useful than single snapshots.",
+    "coach_copy": "Use trends to support conversations, not to overreact to one isolated data point.",
+    "practitioner_copy": "Anchor interpretation to baselines, timing, context, and repeated measures.",
+    "priority": "high",
+    "mode": "all"
+  }
+]

@@ -1,5 +1,5 @@
 """
-WAIMS Health Check & Debugging
+InnerAthlete Health Check & Debugging
 ================================
 Run before demoing or deploying to catch issues early.
 
@@ -15,7 +15,7 @@ Checks performed
 1.  Python & package versions
 2.  Required file existence
 3.  Database integrity (tables, row counts, date ranges)
-4.  Module imports (all WAIMS modules)
+4.  Module imports (all core app modules)
 5.  Deprecation scan (use_container_width, pandas GroupBy)
 6.  research_log.json validity
 7.  Model file existence and loadability
@@ -112,7 +112,7 @@ REQUIRED_FILES = [
     "generate_database.py",
     "train_models.py",
     "waims_demo.db",
-    "assets/branding/waims_run_man_logo.png",
+    "assets/branding/innerathlete/innerathlete-icon-dark.svg",
 ]
 
 OPTIONAL_FILES = [
@@ -208,7 +208,7 @@ def check_database():
 # CHECK 4: Module imports
 # ==============================================================================
 
-WAIMS_MODULES = [
+CORE_MODULES = [
     "auth",
     "coach_command_center",
     "data_quality",
@@ -218,7 +218,7 @@ WAIMS_MODULES = [
 
 def check_imports():
     head("4. Module Imports")
-    for mod in WAIMS_MODULES:
+    for mod in CORE_MODULES:
         try:
             importlib.import_module(mod)
             ok(f"import {mod}")
@@ -432,8 +432,8 @@ def run_streamlit_report():
     import streamlit as st
     import pandas as pd
 
-    st.set_page_config(page_title="WAIMS Health Check", page_icon="🏥", layout="wide")
-    st.title("🏥 WAIMS Health Check")
+    st.set_page_config(page_title="InnerAthlete Health Check", page_icon="🏥", layout="wide")
+    st.title("🏥 InnerAthlete Health Check")
     st.caption(f"Run at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
 
     # Run all checks and collect results
@@ -504,7 +504,7 @@ def run_streamlit_report():
             st.warning(w)
 
     if not ISSUES and not WARNINGS:
-        st.success("✅ All checks passed — WAIMS is demo ready.")
+        st.success("✅ All checks passed — InnerAthlete is demo ready.")
 
 
 # ==============================================================================
@@ -513,7 +513,7 @@ def run_streamlit_report():
 
 def run_terminal():
     print(f"\n{'='*55}")
-    print(f" WAIMS HEALTH CHECK — {datetime.now().strftime('%Y-%m-%d %H:%M')}")
+    print(f" INNERATHLETE HEALTH CHECK — {datetime.now().strftime('%Y-%m-%d %H:%M')}")
     print(f"{'='*55}")
 
     check_environment()
@@ -537,7 +537,7 @@ def run_terminal():
         for i, w in enumerate(WARNINGS, 1):
             print(f"  {YELLOW}{i}. {w}{RESET}")
     if not ISSUES and not WARNINGS:
-        print(f"{GREEN}{BOLD} ALL CHECKS PASSED — WAIMS is demo ready ✓{RESET}")
+        print(f"{GREEN}{BOLD} ALL CHECKS PASSED — InnerAthlete is demo ready ✓{RESET}")
     print(f"{'='*55}\n")
 
     return len(ISSUES)  # exit code

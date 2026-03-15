@@ -1,5 +1,5 @@
 """
-WAIMS Python - Complete Setup Script
+InnerAthlete - Complete Setup Script
 Runs all steps to get the system fully operational with ML and real data
 
 Usage:
@@ -11,7 +11,7 @@ import sys
 import os
 
 print("=" * 70)
-print("WAIMS PYTHON - COMPLETE SETUP")
+print("InnerAthlete PYTHON - COMPLETE SETUP")
 print("=" * 70)
 
 # ==============================================================================

@@ -1,5 +1,5 @@
 """
-WAIMS Sport Configuration
+InnerAthlete Sport Configuration
 ==========================
 Sport-specific threshold defaults, GPS metric priorities, position groups,
 compliance notes, and validation scope settings.
@@ -11,7 +11,7 @@ Springbok Analytics note
 Springbok Analytics is an independent MRI (Match and Rotation Intelligence) platform
 used by NBA/WNBA teams for lineup analytics and play data.
 Second Spectrum is a separate company and the official NBA/WNBA optical tracking provider.
-In WAIMS V2/V3, both Springbok Analytics and Second Spectrum are potential data sources
+In InnerAthlete V2/V3, both Springbok Analytics and Second Spectrum are potential data sources
 for live game load and contextual performance data — not sport configs.
 See V2 roadmap: optical tracking integration for game-context load.
 
@@ -164,7 +164,7 @@ TEAM_CONFIGS = {
         ),
     },
 
-    # Add real teams here as WAIMS is deployed
+    # Add real teams here as InnerAthlete is deployed
     # "team_name": {
     #     "display_name": "Team Name",
     #     "sport": "wnba_basketball",

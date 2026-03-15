@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="InnerAthlete icon dark">
+  <rect width="512" height="512" fill="#ffffff"/>
+  <polygon points="168,392 284,120 360,120 240,392" fill="#070917"/>
+  <polygon points="332,392 256,232 180,392" fill="#070917"/>
+  <polygon points="208,184 304,184 256,280" fill="#ffffff"/>
+  <text x="376" y="120" font-family="Arial, Helvetica, sans-serif" font-size="44" font-weight="700" fill="#070917">TM</text>
+</svg>

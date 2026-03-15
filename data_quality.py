@@ -1,5 +1,5 @@
 """
-WAIMS Data Quality Module
+InnerAthlete Data Quality Module
 =========================
 Tiered imputation and outlier handling with full audit logging.
 
@@ -95,7 +95,7 @@ ACWR_MIN_DAYS   = 7     # Minimum days of load data for reliable ACWR
 
 class DataQualityProcessor:
     """
-    Process and document all data quality decisions for WAIMS.
+    Process and document all data quality decisions for InnerAthlete.
 
     Every imputation, exclusion, and winsorisation is logged to
     self.audit_log so sport scientists can review what happened.
@@ -413,7 +413,7 @@ class DataQualityProcessor:
     def print_summary(self):
         """Print human-readable summary to stdout."""
         print("\n" + "="*60)
-        print("WAIMS DATA QUALITY REPORT")
+        print("InnerAthlete DATA QUALITY REPORT")
         print("="*60)
         for key, val in self.summary.items():
             label = key.replace("_", " ").title()

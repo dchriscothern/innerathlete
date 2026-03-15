@@ -1,0 +1,34 @@
+[
+  {
+    "metric": "Timing Control",
+    "banding": ["Basic", "Lower Average", "Average", "Higher Average", "Elite"],
+    "athlete_safe_copy": "Tracks how well the athlete matches changing speed and rhythm demands.",
+    "coach_copy": "Useful for teaching pace changes, timing windows, and decision rhythm under pressure.",
+    "practitioner_copy": "Interpret alongside fatigue, sleep, recovery, and competitive context.",
+    "recommendation_tags": ["skill_acquisition", "decision_speed"]
+  },
+  {
+    "metric": "Distraction Control",
+    "banding": ["Basic", "Lower Average", "Average", "Higher Average", "Elite"],
+    "athlete_safe_copy": "Reflects how attention holds under noise, pressure, and competing cues.",
+    "coach_copy": "Helpful for designing cueing environments and pressure-based drill progressions.",
+    "practitioner_copy": "Review with sleep, stress, and training density before interpreting downturns.",
+    "recommendation_tags": ["attention_control", "sleep"]
+  },
+  {
+    "metric": "Impulse Control",
+    "banding": ["Basic", "Lower Average", "Average", "Higher Average", "Elite"],
+    "athlete_safe_copy": "Shows how well the athlete resists reacting too early to deceptive cues.",
+    "coach_copy": "Useful for read-react drills, deception training, and decision patience.",
+    "practitioner_copy": "Low scores are a coaching opportunity, not a fixed trait.",
+    "recommendation_tags": ["decision_quality", "read_react"]
+  },
+  {
+    "metric": "Motor Learning",
+    "banding": ["Basic", "Lower Average", "Average", "Higher Average", "Elite"],
+    "athlete_safe_copy": "Helps frame how quickly new movement patterns may stick.",
+    "coach_copy": "Guide drill layering, repetition density, and how much variation to introduce at once.",
+    "practitioner_copy": "Use to simplify or sequence motor learning demands during heavy load periods.",
+    "recommendation_tags": ["skill_acquisition", "practice_design"]
+  }
+]

@@ -1,5 +1,5 @@
 # ==============================================================================
-# WAIMS — ESPN WNBA Box Score Integration
+# InnerAthlete — ESPN WNBA Box Score Integration
 # ==============================================================================
 #
 # DATA SOURCE: ESPN hidden public API (no auth required)
@@ -583,7 +583,7 @@ def get_player_career_summary(
 
 
 if __name__ == "__main__":
-    print("WAIMS ESPN Data Module")
+    print("InnerAthlete ESPN Data Module")
     print("=" * 55)
     print("No API key required — ESPN public endpoint")
     print()

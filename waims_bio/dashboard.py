@@ -18,7 +18,7 @@ except ModuleNotFoundError:
 
 BASE_DIR = Path(__file__).resolve().parent
 
-LOGO_PATH = BASE_DIR / "data" / "branding" / "your_logo.png"
+LOGO_PATH = BASE_DIR.parent / "assets" / "branding" / "innerathlete" / "innerathlete-icon-dark.svg"
 
 st.set_page_config(
     page_title="InnerAthlete Intelligence Hub",
@@ -31,6 +31,8 @@ engine = WAIMSEngine()
 meta = engine.get_org_meta()
 
 with st.sidebar:
+    if LOGO_PATH.exists():
+        st.image(str(LOGO_PATH), width=54)
     st.title("InnerAthlete")
     st.caption("Privacy-first demo workspace")
     st.success(meta["status"])

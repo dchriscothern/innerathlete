@@ -1,5 +1,5 @@
 """
-WAIMS - Smart Data Query Interface
+InnerAthlete Smart Data Query Interface
 Natural language-style queries — pattern matching, no API keys needed.
 
 Supported queries:
@@ -23,7 +23,7 @@ from datetime import datetime, timedelta
 # PAGE CONFIG
 # ==============================================================================
 
-st.set_page_config(page_title="WAIMS Smart Query", page_icon="🔍", layout="wide")
+st.set_page_config(page_title="InnerAthlete Smart Query", page_icon="🔍", layout="wide")
 
 # ==============================================================================
 # DATABASE HELPERS
@@ -538,7 +538,7 @@ def generate_response(query_type, params):
 # UI
 # ==============================================================================
 
-st.title("🔍 WAIMS Smart Query Interface")
+st.title("🔍 InnerAthlete Smart Query Interface")
 st.markdown("Ask questions about your data — instant answers, no API keys needed.")
 
 if not HAS_GPS:
@@ -598,7 +598,7 @@ if query_input:
         st.download_button(
             "📥 Download Results (CSV)",
             data=data.to_csv(index=False),
-            file_name=f"waims_query_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
+            file_name=f"innerathlete_query_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
             mime="text/csv",
         )
 

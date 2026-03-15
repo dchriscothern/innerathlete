@@ -1,5 +1,5 @@
 """
-WAIMS Python - Fetch Real WNBA Data via wehoop
+InnerAthlete - Fetch Real WNBA Data via wehoop
 Downloads 2025 season game statistics from ESPN API
 
 Usage:
@@ -11,7 +11,7 @@ import sqlite3
 from datetime import datetime
 
 print("=" * 60)
-print("WAIMS - Fetching Real WNBA Game Data")
+print("InnerAthlete - Fetching Real WNBA Game Data")
 print("=" * 60)
 
 try:

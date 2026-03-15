@@ -1,5 +1,5 @@
 """
-WAIMS Python - Basketball-Reference WNBA Data Scraper
+InnerAthlete - Basketball-Reference WNBA Data Scraper
 Scrapes real WNBA game statistics from Basketball-Reference.com
 
 This is a custom data pipeline that doesn't rely on broken packages.
@@ -19,7 +19,7 @@ import sqlite3
 from datetime import datetime
 
 print("=" * 70)
-print("WAIMS - BASKETBALL-REFERENCE WNBA SCRAPER")
+print("InnerAthlete - BASKETBALL-REFERENCE WNBA SCRAPER")
 print("=" * 70)
 
 # ==============================================================================

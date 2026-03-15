@@ -1,5 +1,5 @@
 """
-WAIMS Model Validation Framework
+InnerAthlete Model Validation Framework
 =================================
 Implements the Julius.ai validation recipe for athlete injury risk
 and readiness score models.
@@ -419,14 +419,14 @@ def show_validation_framework_streamlit():
         st.markdown("### Baselines to Beat")
         st.caption("If the RF model doesn't beat these, the model isn't adding value.")
         st.caption(
-            "ACWR is a contextual flag in WAIMS (not a direct model scoring feature). "
+            "ACWR is a contextual flag in InnerAthlete (not a direct model scoring feature). "
             "It appears here as a comparison baseline — the RF model should outperform "
             "a simple ACWR threshold rule to justify its complexity."
         )
         baselines = pd.DataFrame([
             {"Baseline": "ACWR > 1.5 threshold rule",
              "Complexity": "Simple threshold",
-             "What it tests": "Does the RF model add value over load ratio alone? (ACWR is a flag in WAIMS, not a scored feature — this checks if the fuller model is worth the complexity.)"},
+             "What it tests": "Does the RF model add value over load ratio alone? (ACWR is a flag in InnerAthlete, not a scored feature — this checks if the fuller model is worth the complexity.)"},
             {"Baseline": "7-day acute load spike rule",
              "Complexity": "Simple threshold",
              "What it tests": "Does the model add value over minutes-volume monitoring alone?"},

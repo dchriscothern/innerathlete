@@ -1,0 +1,32 @@
+[
+  {
+    "name": "biomarker_results",
+    "status": "future_only",
+    "fields": ["athlete_code", "collection_date", "metric_slug", "value", "unit", "sample_context"]
+  },
+  {
+    "name": "genomics_summary",
+    "status": "future_only",
+    "fields": ["athlete_code", "domain", "status", "caution_copy", "recommendation_tags"]
+  },
+  {
+    "name": "questionnaire_trends",
+    "status": "future_only",
+    "fields": ["athlete_code", "date", "sleep", "stress", "mood", "soreness", "notes"]
+  },
+  {
+    "name": "injury_questionnaire_overlay",
+    "status": "future_only",
+    "fields": ["athlete_code", "date", "availability_status", "injury_flag", "wellness_context"]
+  },
+  {
+    "name": "cognition_summary",
+    "status": "future_only",
+    "fields": ["athlete_code", "test_date", "metric", "score", "band", "recommendation_tags"]
+  },
+  {
+    "name": "generated_plan",
+    "status": "future_only",
+    "fields": ["athlete_code", "generated_at", "priority_level", "recommendations", "disclaimer"]
+  }
+]

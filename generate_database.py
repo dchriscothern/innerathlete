@@ -1,5 +1,5 @@
 """
-WAIMS Python Demo - Data Generation Script
+InnerAthlete Demo - Data Generation Script
 Generates 90 days of realistic WNBA athlete monitoring data
 
 Creates SQLite database with:
@@ -19,7 +19,7 @@ from datetime import datetime, timedelta
 np.random.seed(42)
 
 print("=" * 60)
-print("WAIMS - Generating Athlete Monitoring Database")
+print("InnerAthlete - Generating Athlete Monitoring Database")
 print("=" * 60)
 
 # ==============================================================================

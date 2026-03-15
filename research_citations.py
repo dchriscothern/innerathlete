@@ -1,6 +1,6 @@
 """
 Research Citations Module
-Shows all studies used in WAIMS dashboard with evidence hierarchy
+Shows the study basis behind the current InnerAthlete demo thresholds and interpretation
 """
 
 import streamlit as st
@@ -13,7 +13,7 @@ def show_research_foundation():
     st.markdown("### 📚 Evidence-Based Thresholds")
     
     st.markdown("""
-    **WAIMS uses peer-reviewed, systematic reviews and meta-analyses:**
+    **InnerAthlete uses peer-reviewed, systematic reviews and meta-analyses where possible:**
     
     🥇 = Meta-analysis (highest quality)  
     🥈 = Systematic review  
@@ -29,7 +29,7 @@ def show_research_foundation():
         
         **Key Finding:** Sleep <6.5 hours = 1.7x injury risk  
         **Sample:** 112 youth athletes  
-        **Applied in WAIMS:** Red flag when sleep <6.5 hrs
+        **Applied in InnerAthlete:** Red flag when sleep <6.5 hrs
         
         ---
         
@@ -38,7 +38,7 @@ def show_research_foundation():
         Journal: Sports Medicine
         
         **Key Finding:** Optimal sleep = 7-9 hours for athletes  
-        **Applied in WAIMS:** Target 8 hrs, monitor if <7 hrs
+        **Applied in InnerAthlete:** Target 8 hrs, monitor if <7 hrs
         """)
     
     with st.expander("📊 Training Load & ACWR", expanded=False):
@@ -49,7 +49,7 @@ def show_research_foundation():
         
         **Key Finding:** ACWR >1.5 = 2.4x injury risk  
         **Sample:** 2,000+ athletes across multiple sports  
-        **Applied in WAIMS:** 
+        **Applied in InnerAthlete:** 
         - Red flag: ACWR >1.5
         - Caution: ACWR 1.3-1.5
         - Optimal: ACWR 0.8-1.3
@@ -61,7 +61,7 @@ def show_research_foundation():
         Journal: British Journal of Sports Medicine
         
         **Key Finding:** Rapid load spikes increase injury risk  
-        **Applied in WAIMS:** Monitor ACWR trends, flag sudden spikes
+        **Applied in InnerAthlete:** Monitor ACWR trends, flag sudden spikes
         """)
     
     with st.expander("😫 Soreness & Wellness", expanded=False):
@@ -71,7 +71,7 @@ def show_research_foundation():
         Journal: International Journal of Sports Physiology and Performance
         
         **Key Finding:** Soreness >7/10 correlates with injury risk  
-        **Applied in WAIMS:** Monitor threshold at 7/10
+        **Applied in InnerAthlete:** Monitor threshold at 7/10
         
         ---
         
@@ -80,7 +80,7 @@ def show_research_foundation():
         Journal: Sports Medicine
         
         **Key Finding:** Multi-dimensional wellness monitoring effective  
-        **Applied in WAIMS:** Combined sleep + soreness + stress + mood scoring
+        **Applied in InnerAthlete:** Combined sleep + soreness + stress + mood scoring
         """)
     
     with st.expander("🏀 Basketball-Specific Injuries (NEW)", expanded=True):
@@ -97,7 +97,7 @@ def show_research_foundation():
         - **Competition vs Practice:** Contact injuries higher in games
         - **Overuse:** More common in practice settings
         
-        **Applied in WAIMS:**
+        **Applied in InnerAthlete:**
         - Context-specific risk alerts (practice vs competition)
         - Enhanced monitoring before games (contact risk)
         - Overuse tracking for practice loads
@@ -111,7 +111,7 @@ def show_research_foundation():
         Journal: Strength and Conditioning Journal
         
         **Key Finding:** Asymmetry >15% linked to injury  
-        **WAIMS Adjustment:** >10% threshold for female athletes (more conservative)
+        **InnerAthlete Adjustment:** >10% threshold for female athletes (more conservative)
         
         ---
         
@@ -120,7 +120,7 @@ def show_research_foundation():
         Journal: Sports Medicine
         
         **Key Finding:** CMJ height correlates with performance and injury risk  
-        **Applied in WAIMS:** Track CMJ trends, flag decreases >10%
+        **Applied in InnerAthlete:** Track CMJ trends, flag decreases >10%
         """)
     
     with st.expander("⚖️ Female Athlete Considerations", expanded=False):
@@ -130,7 +130,7 @@ def show_research_foundation():
         Journal: American Journal of Sports Medicine
         
         **Key Finding:** Female athletes 4-6x higher ACL injury risk  
-        **Applied in WAIMS:** 
+        **Applied in InnerAthlete:** 
         - More conservative asymmetry thresholds (10% vs 15%)
         - Enhanced landing mechanics monitoring
         - CMJ asymmetry tracking

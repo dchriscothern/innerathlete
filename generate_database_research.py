@@ -1,5 +1,5 @@
 """
-WAIMS Python - Research-Validated Data Generator
+InnerAthlete - Research-Validated Data Generator
 Alternative to generate_database.py: use generate_database.py for standard setup.
 Creates database with injuries based on actual risk factors from research.
 
@@ -19,7 +19,7 @@ import numpy as np
 from datetime import datetime, timedelta
 
 print("=" * 60)
-print("WAIMS - RESEARCH-VALIDATED DATABASE GENERATOR")
+print("InnerAthlete - RESEARCH-VALIDATED DATABASE GENERATOR")
 print("=" * 60)
 print("\nGenerating data with research-based injury patterns...")
 

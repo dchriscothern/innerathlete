@@ -1,5 +1,5 @@
 """
-WAIMS Python Demo - ML Model Training
+InnerAthlete Demo - ML Model Training
 Trains injury risk predictor and readiness scorer.
 Includes per-player z-score deviation features AND GPS/Kinexon metrics
 (player_load, accel_count, decel_count) as primary signals.
@@ -21,7 +21,7 @@ from sklearn.preprocessing import StandardScaler
 warnings.filterwarnings("ignore")
 
 print("=" * 60)
-print("WAIMS - Training ML Models")
+print("InnerAthlete - Training ML Models")
 print("=" * 60)
 
 # ==============================================================================
