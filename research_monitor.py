@@ -1,26 +1,32 @@
 """
 InnerAthlete Evidence Review System
-=============================
-Automated monitoring of new sports science research relevant to InnerAthlete thresholds,
-signals, and methodology. Combines PubMed primary literature with expert practitioner
-RSS feeds.
+==================================
+Automated monitoring of new athlete-performance research relevant to InnerAthlete's
+biomarker, genetics/SNP, and guardrail logic. Combines PubMed primary literature with
+expert practitioner RSS feeds.
 
-FORMAL EVIDENCE REVIEW POLICY (Orlando Magic-style)
-----------------------------------------------------
-No threshold or weighting change in InnerAthlete without a supporting meta-analysis or
-systematic review. Single new studies go to WATCHLIST, not production.
+FORMAL EVIDENCE REVIEW POLICY
+-----------------------------
+No biomarker interpretation rule, genetics recommendation, or product guardrail change
+without supporting higher-level evidence and practitioner review. Single new studies go
+to WATCHLIST, not production.
 
 Purpose: FORWARD-LOOKING INBOX only.
-  Foundational papers (Walsh 2021, Gabbett 2016, Gathercole 2015, etc.) are already
-  integrated in RESEARCH_FOUNDATION.md. This monitor surfaces NEW research only.
+  Foundational references and product guardrails already live in RESEARCH_FOUNDATION.md
+  and the InnerAthlete content registries. This monitor surfaces NEW research only.
   Run weekly via GitHub Actions. Triage in Evidence Review tab (Insights).
 
 Decision ladder:
   WATCHLIST  -> interesting, single study, monitor for replication
-  CANDIDATE  -> appears in meta-analysis/SR; schedule formal staff review
-  APPROVED   -> reviewed by performance staff, approved for InnerAthlete update
-  INTEGRATED -> change made to code, RESEARCH_FOUNDATION.md, README, roadmap
-  REJECTED   -> reviewed, not applicable (wrong population, sport, etc.)
+  CANDIDATE  -> meta-analysis/SR/consensus eligible for formal review
+  APPROVED   -> reviewed by performance/medical staff, approved for update
+  INTEGRATED -> change made to code, content, docs, or guardrails
+  REJECTED   -> reviewed, not applicable or not safe to operationalize
+
+Guardrails:
+  - Biomarkers support context, not diagnosis.
+  - Genetics is probabilistic context only, never talent ID or deterministic labeling.
+  - No single SNP paper should change product logic on its own.
 
 Usage:
   python research_monitor.py                          # last 7 days, console
@@ -38,150 +44,138 @@ import json
 import argparse
 import time
 import re
+import hashlib
 import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta
 from pathlib import Path
 
 
 # ==============================================================================
-# PUBMED SEARCH TOPICS (tightened -- sport science only, no clinical noise)
-# Each query is narrowly targeted to avoid pulling in irrelevant medical papers.
+# PUBMED SEARCH TOPICS
+# Focus on athlete biomarkers, genetics/SNP interpretation, and safe implementation.
 # ==============================================================================
 PUBMED_TOPICS = [
     {
-        "topic": "Sleep & Athlete Injury Risk",
+        "topic": "Athlete Biomarker Monitoring Methodology",
         "query": (
-            '(sleep[Title/Abstract]) AND '
-            '(athlete[Title/Abstract] OR "sport performance"[Title/Abstract] OR basketball[Title/Abstract]) AND '
-            '(injury[Title/Abstract] OR recovery[Title/Abstract] OR readiness[Title/Abstract]) NOT '
-            '(zolpidem OR pharmacol OR "clinical trial" OR insomnia[Title] OR cardiac OR cancer OR surgery)'
+            '((biomarker[Title/Abstract] OR "blood marker"[Title/Abstract] OR '
+            '"blood testing"[Title/Abstract] OR hematology[Title/Abstract]) AND '
+            '(athlete[Title/Abstract] OR sport[Title/Abstract] OR exercise[Title/Abstract]) AND '
+            '(monitoring[Title/Abstract] OR longitudinal[Title/Abstract] OR interpretation[Title/Abstract] '
+            'OR recovery[Title/Abstract] OR readiness[Title/Abstract])) NOT '
+            '(cancer OR surgery OR intensive care OR pregnancy OR rat OR mouse)'
         ),
-        "waims_signal": "sleep_hours threshold (<7h flag, <6h hard floor -- Walsh 2021)",
-        "waims_action": "Would change <7h threshold or readiness formula sleep weight",
-        "tags": ["sleep", "injury"],
+        "waims_signal": "Biomarker collection and interpretation guardrails",
+        "waims_action": "Would change how InnerAthlete frames repeat testing, timing, or longitudinal review",
+        "tags": ["biomarker", "methodology", "guardrail"],
     },
     {
-        "topic": "CMJ / RSI as Fatigue Marker",
+        "topic": "Ferritin, Iron, And Oxygen Support In Athletes",
         "query": (
-            '("countermovement jump"[Title/Abstract] OR CMJ[Title/Abstract] OR '
-            '"reactive strength index"[Title/Abstract] OR RSI[Title/Abstract]) AND '
-            '(fatigue[Title/Abstract] OR monitoring[Title/Abstract] OR readiness[Title/Abstract] OR '
-            'neuromuscular[Title/Abstract])'
+            '((ferritin[Title/Abstract] OR iron[Title/Abstract] OR hemoglobin[Title/Abstract]) AND '
+            '(athlete[Title/Abstract] OR sport[Title/Abstract] OR "female athlete"[Title/Abstract]) AND '
+            '(performance[Title/Abstract] OR fatigue[Title/Abstract] OR recovery[Title/Abstract] OR '
+            'monitoring[Title/Abstract])) NOT (anemia of chronic disease OR cancer OR dialysis)'
         ),
-        "waims_signal": "CMJ z-score and RSI z-score -- primary objective signals",
-        "waims_action": "Would change primary signal weights or z-score thresholds",
-        "tags": ["force_plate", "neuromuscular"],
+        "waims_signal": "Ferritin and oxygen-support interpretation",
+        "waims_action": "Would change athlete-safe copy around energy, recovery support, or repeat-draw context",
+        "tags": ["biomarker", "ferritin", "iron"],
     },
     {
-        "topic": "Basketball Load Monitoring",
+        "topic": "Vitamin D And Micronutrient Support In Athletes",
         "query": (
-            '(basketball[Title/Abstract] OR WNBA[Title/Abstract]) AND '
-            '("training load"[Title/Abstract] OR "player load"[Title/Abstract] OR '
-            'readiness[Title/Abstract] OR fatigue[Title/Abstract] OR monitoring[Title/Abstract])'
+            '((vitamin d[Title/Abstract] OR micronutrient[Title/Abstract]) AND '
+            '(athlete[Title/Abstract] OR sport[Title/Abstract] OR exercise[Title/Abstract]) AND '
+            '(performance[Title/Abstract] OR injury[Title/Abstract] OR recovery[Title/Abstract] OR '
+            'monitoring[Title/Abstract])) NOT (rickets OR osteoporosis OR renal failure)'
         ),
-        "waims_signal": "All signals -- basketball-specific context and baselines",
-        "waims_action": "Direct application, especially female basketball and positional norms",
-        "tags": ["basketball", "load"],
+        "waims_signal": "Vitamin D and micronutrient support framing",
+        "waims_action": "Would change how InnerAthlete discusses supplementation context, seasonality, and retest cadence",
+        "tags": ["biomarker", "vitamin_d", "nutrition"],
     },
     {
-        "topic": "Female Athlete Monitoring & Recovery",
+        "topic": "Inflammation And Stress Markers In Athletes",
         "query": (
-            '("female athlete"[Title/Abstract] OR "women\'s basketball"[Title/Abstract] OR '
-            '"female basketball"[Title/Abstract]) AND '
-            '(load[Title/Abstract] OR monitoring[Title/Abstract] OR recovery[Title/Abstract] OR '
-            'readiness[Title/Abstract] OR injury[Title/Abstract] OR fatigue[Title/Abstract])'
+            '((c-reactive protein[Title/Abstract] OR hs-crp[Title/Abstract] OR cortisol[Title/Abstract] OR '
+            'inflammation[Title/Abstract]) AND '
+            '(athlete[Title/Abstract] OR sport[Title/Abstract] OR exercise[Title/Abstract]) AND '
+            '(recovery[Title/Abstract] OR readiness[Title/Abstract] OR fatigue[Title/Abstract] OR '
+            'training[Title/Abstract])) NOT (sepsis OR intensive care OR surgery OR cancer)'
         ),
-        "waims_signal": "Female-specific thresholds -- core WAIMS design principle",
-        "waims_action": "Would change female-specific recovery rates or CMJ baselines",
-        "tags": ["female", "recovery"],
+        "waims_signal": "Inflammation and stress-physiology context",
+        "waims_action": "Would change sample-timing caution language or how blood context is blended with load and wellness",
+        "tags": ["biomarker", "hs_crp", "cortisol", "recovery"],
     },
     {
-        "topic": "Deceleration Monitoring",
+        "topic": "Female Athlete Biomarker Support",
         "query": (
-            '(deceleration[Title/Abstract] OR "high-speed deceleration"[Title/Abstract]) AND '
-            '(injury[Title/Abstract] OR monitoring[Title/Abstract] OR GPS[Title/Abstract] OR '
-            'basketball[Title/Abstract] OR "team sport"[Title/Abstract]) AND '
-            '(athlete[Title/Abstract] OR sport[Title/Abstract])'
+            '(("female athlete"[Title/Abstract] OR sportswomen[Title/Abstract] OR women[Title/Abstract]) AND '
+            '(biomarker[Title/Abstract] OR ferritin[Title/Abstract] OR vitamin d[Title/Abstract] '
+            'OR hematology[Title/Abstract]) AND '
+            '(recovery[Title/Abstract] OR performance[Title/Abstract] OR monitoring[Title/Abstract])) NOT '
+            '(pregnancy OR fertility treatment OR oncology)'
         ),
-        "waims_signal": "decel_count z-score -- primary GPS injury-risk signal",
-        "waims_action": "Would change how decel count is interpreted or thresholded",
-        "tags": ["decel", "GPS"],
+        "waims_signal": "Female-athlete biomarker interpretation",
+        "waims_action": "Would change population-specific wording or repeat-testing emphasis for women athletes",
+        "tags": ["biomarker", "female"],
     },
     {
-        "topic": "GPS Load Monitoring",
+        "topic": "Athlete Genomics And SNP Validity",
         "query": (
-            '(GPS[Title/Abstract] OR "player load"[Title/Abstract] OR accelerometer[Title/Abstract]) AND '
-            '(basketball[Title/Abstract] OR "team sport"[Title/Abstract]) AND '
-            '(monitoring[Title/Abstract] OR load[Title/Abstract] OR validity[Title/Abstract])'
+            '((genetic[Title/Abstract] OR genomic[Title/Abstract] OR SNP[Title/Abstract] OR polymorphism[Title/Abstract]) '
+            'AND (athlete[Title/Abstract] OR sport[Title/Abstract] OR exercise[Title/Abstract]) AND '
+            '(performance[Title/Abstract] OR recovery[Title/Abstract] OR training response[Title/Abstract] '
+            'OR sleep[Title/Abstract] OR injury[Title/Abstract] OR validity[Title/Abstract])) NOT '
+            '(cancer OR prenatal OR embryo OR livestock OR mouse OR rat)'
         ),
-        "waims_signal": "GPS framing -- external load only (Boskovic 2024 GPS 3.0)",
-        "waims_action": "Would update GPS signal weighting or framing",
-        "tags": ["GPS", "load"],
+        "waims_signal": "Genetics/SNP contextual interpretation",
+        "waims_action": "Would change domain-level genetics summaries, not deterministic athlete conclusions",
+        "tags": ["genetics", "snp", "guardrail"],
     },
     {
-        "topic": "ACWR Methodology",
+        "topic": "Nutrigenomics, Sleep, And Caffeine Response",
         "query": (
-            '("acute chronic workload ratio"[Title/Abstract] OR ACWR[Title/Abstract] OR '
-            '"acute:chronic"[Title/Abstract]) AND '
-            '(injury[Title/Abstract] OR validity[Title/Abstract] OR methodology[Title/Abstract]) AND '
-            '(athlete[Title/Abstract] OR sport[Title/Abstract])'
+            '((nutrigenomics[Title/Abstract] OR caffeine[Title/Abstract] OR circadian[Title/Abstract] '
+            'OR sleep genotype[Title/Abstract] OR chronotype[Title/Abstract]) AND '
+            '(athlete[Title/Abstract] OR sport[Title/Abstract] OR exercise[Title/Abstract]) AND '
+            '(performance[Title/Abstract] OR recovery[Title/Abstract] OR sleep[Title/Abstract] OR nutrition[Title/Abstract])) '
+            'NOT (cancer OR psychiatric disorder OR pregnancy)'
         ),
-        "waims_signal": "ACWR -- contextual flag only (Impellizzeri 2020)",
-        "waims_action": "Evidence for ACWR rehabilitation or further critique",
-        "tags": ["ACWR"],
+        "waims_signal": "Nutrition and sleep genetics guidance",
+        "waims_action": "Would sharpen athlete-safe coaching language around caffeine, bedtime routines, and fuel support",
+        "tags": ["genetics", "sleep", "nutrition"],
     },
     {
-        "topic": "Menstrual Cycle & Athletic Performance",
+        "topic": "Sport Genomics Ethics, Validity, And Consent",
         "query": (
-            '("menstrual cycle"[Title/Abstract] OR "luteal phase"[Title/Abstract]) AND '
-            '("athletic performance"[Title/Abstract] OR "injury risk"[Title/Abstract] OR '
-            '"neuromuscular"[Title/Abstract] OR ACL[Title/Abstract] OR recovery[Title/Abstract]) AND '
-            '(athlete[Title/Abstract] OR sport[Title/Abstract] OR exercise[Title/Abstract])'
+            '((genetic testing[Title/Abstract] OR sport genomics[Title/Abstract] OR direct-to-consumer[Title/Abstract] '
+            'OR ethics[Title/Abstract] OR consent[Title/Abstract] OR privacy[Title/Abstract]) AND '
+            '(athlete[Title/Abstract] OR sport[Title/Abstract] OR exercise[Title/Abstract]))'
         ),
-        "waims_signal": "V2 feature -- menstrual cycle phase adjustment",
-        "waims_action": "Evidence base for future menstrual cycle integration (V2 roadmap)",
-        "tags": ["female", "hormonal", "V2"],
-    },
-    {
-        "topic": "Basketball Injury Epidemiology",
-        "query": (
-            '(basketball[Title/Abstract] OR WNBA[Title/Abstract]) AND '
-            '("systematic review"[Title/Abstract] OR "meta-analysis"[Title/Abstract]) AND '
-            '(injur[Title/Abstract] OR ACL[Title/Abstract] OR ankle[Title/Abstract] OR knee[Title/Abstract])'
-        ),
-        "waims_signal": "Basketball-specific risk context section",
-        "waims_action": "Would update injury mechanism language in risk context",
-        "tags": ["basketball", "injury"],
-    },
-    {
-        "topic": "Travel & Circadian Load",
-        "query": (
-            '(travel[Title/Abstract] OR "time zone"[Title/Abstract] OR circadian[Title/Abstract]) AND '
-            '(athlete[Title/Abstract] OR basketball[Title/Abstract] OR NBA[Title/Abstract]) AND '
-            '(performance[Title/Abstract] OR fatigue[Title/Abstract] OR sleep[Title/Abstract])'
-        ),
-        "waims_signal": "B2B + travel scenario -- eastward vs westward penalty (V2)",
-        "waims_action": "Would update circadian/travel penalty in load projection",
-        "tags": ["travel", "circadian", "sleep"],
+        "waims_signal": "Genetics guardrails, consent, and privacy posture",
+        "waims_action": "Would change product guardrails, consent language, or operational boundaries for DNA inputs",
+        "tags": ["genetics", "ethics", "guardrail", "consent"],
     },
 ]
 
 
 # ==============================================================================
 # POST-FETCH RELEVANCE FILTER
-# Applied after PubMed returns results to catch any clinical noise
+# Applied after PubMed returns results to catch clinical noise and non-athlete genetics papers.
 # ==============================================================================
 
-# Title must contain at least one sport-relevant term
-TITLE_INCLUDE_TERMS = [
-    "athlete", "sport", "basketball", "player", "training", "exercise",
-    "physical", "performance", "fitness", "load", "fatigue", "recovery",
-    "sleep", "jump", "gps", "monitoring", "readiness", "injury",
-    "female", "women", "wnba", "nba", "neuromuscular", "deceleration",
-    "acwr", "workload",
+TITLE_CONTEXT_TERMS = [
+    "athlete", "sport", "sports", "exercise", "training", "player",
+    "female athlete", "sportswomen", "women athlete",
 ]
 
-# Paper is rejected if title contains any of these clinical terms
+TITLE_DOMAIN_TERMS = [
+    "biomarker", "blood", "hematology", "biochemical", "ferritin", "iron",
+    "hemoglobin", "vitamin d", "micronutrient", "cortisol", "inflammation",
+    "c-reactive", "hs-crp", "genetic", "genomic", "snp", "polymorphism",
+    "nutrigenomic", "chronotype", "caffeine", "sleep",
+]
+
 TITLE_EXCLUDE_TERMS = [
     "surgery", "surgical", "operative", "pharmacol", "drug trial",
     "placebo", "biopsy", "histolog", "patholog", "radiology",
@@ -193,6 +187,10 @@ TITLE_EXCLUDE_TERMS = [
     "intimate partner", "endometrial", "ovarian", "polycystic",
     "embryo", "ivf", "luteal stimulation", "follicular stimulation",
     "tinnitus", "migraine", "depression medication", "psychiatr",
+    "schizophrenia", "alzheimer", "parkinson", "livestock", "racehorse",
+    "stroke", "post-stroke", "prenatal", "amniotic", "fibromyalgia",
+    "hip osteoarthritis", "osteoarthritis", "patient", "patients",
+    "hospital", "emergency", "sexual assault",
 ]
 
 
@@ -203,11 +201,10 @@ def passes_relevance_filter(title: str) -> bool:
     for term in TITLE_EXCLUDE_TERMS:
         if term in t:
             return False
-    # Must include at least one sport term
-    for term in TITLE_INCLUDE_TERMS:
-        if term in t:
-            return True
-    return False
+
+    has_context = any(term in t for term in TITLE_CONTEXT_TERMS)
+    has_domain = any(term in t for term in TITLE_DOMAIN_TERMS)
+    return has_context and has_domain
 
 
 # ==============================================================================
@@ -252,14 +249,21 @@ RSS_SOURCES = [
 QUALITY_KEYWORDS = {
     "meta-analysis":     {"score": 10, "label": "META-ANALYSIS"},
     "systematic review": {"score": 9,  "label": "SYSTEMATIC REVIEW"},
+    "consensus":         {"score": 8,  "label": "CONSENSUS"},
+    "position stand":    {"score": 8,  "label": "CONSENSUS"},
     "randomised":        {"score": 7,  "label": "RCT"},
     "randomized":        {"score": 7,  "label": "RCT"},
     "prospective":       {"score": 6,  "label": "PROSPECTIVE"},
     "cohort":            {"score": 5,  "label": "COHORT"},
-    "basketball":        {"score": 3,  "label": "BASKETBALL"},
-    "wnba":              {"score": 4,  "label": "WNBA"},
+    "biomarker":         {"score": 3,  "label": "BIOMARKER"},
+    "ferritin":          {"score": 3,  "label": "FERRITIN"},
+    "vitamin d":         {"score": 3,  "label": "VITAMIN D"},
+    "genetic":           {"score": 3,  "label": "GENETICS"},
+    "genomic":           {"score": 3,  "label": "GENETICS"},
+    "snp":               {"score": 2,  "label": "SNP"},
     "female":            {"score": 2,  "label": "FEMALE"},
     "women":             {"score": 2,  "label": "FEMALE"},
+    "athlete":           {"score": 2,  "label": "ATHLETE"},
     "review":            {"score": 1,  "label": "REVIEW"},
 }
 
@@ -337,8 +341,10 @@ def fetch_rss(source, days):
             if pub_date and pub_date < cutoff:
                 continue
             score, labels = score_paper(title)
+            stable_key = link or title.lower()
+            stable_id = hashlib.sha1(stable_key.encode("utf-8")).hexdigest()[:12]
             items.append({
-                "id": f"rss_{re.sub(r'[^a-z0-9]','_',title.lower())[:35]}_{abs(hash(link)) % 10000:04d}",
+                "id": f"rss_{re.sub(r'[^a-z0-9]','_',title.lower())[:35]}_{stable_id}",
                 "source": source["name"], "source_type": source["type"],
                 "trust_level": source["trust_level"],
                 "title": title, "url": link,
@@ -356,32 +362,132 @@ def fetch_rss(source, days):
 # ==============================================================================
 # EVIDENCE GATE
 # ==============================================================================
+def build_guardrail_note(tags):
+    notes = []
+    if {"genetics", "snp", "ethics", "consent"} & tags:
+        notes.append(
+            "Guardrail: genetics is contextual only. Never use for talent ID, selection, ceiling prediction, or standalone risk labels."
+        )
+    if {"biomarker", "ferritin", "vitamin_d", "hs_crp", "cortisol"} & tags:
+        notes.append(
+            "Guardrail: biomarkers support context, not diagnosis. Interpret with collection timing, repeat draws, symptoms, and recent training/life stress."
+        )
+    if {"guardrail", "consent"} & tags:
+        notes.append(
+            "Operational guardrail: require explicit consent, privacy-safe handling, and role-appropriate communication."
+        )
+    return " ".join(notes)
+
+
 def apply_gate(papers):
     for p in papers:
-        labels      = p.get("quality_labels", [])
+        labels = p.get("quality_labels", [])
         source_type = p.get("source_type", "pubmed")
-        score       = p.get("quality_score", 0)
+        score = p.get("quality_score", 0)
+        tags = set(p.get("tags", []))
+        extra = build_guardrail_note(tags)
 
         if source_type in ("expert_practitioner", "practitioner_journal", "journal_blog"):
             p["gate_status"] = "ASSESS"
-            p["gate_note"]   = ("Practitioner article -- assess against real-world context. "
-                                "Does it align with or contradict your Sportsmith reading this week?")
-        elif "META-ANALYSIS" in labels or "SYSTEMATIC REVIEW" in labels:
+            p["gate_note"] = (
+                "Practitioner article -- assess against real-world context and product safety. "
+                "Does it refine explanation, sampling workflow, or guardrail copy? "
+                f"{extra}"
+            ).strip()
+        elif ("GENETICS" in labels or "SNP" in labels or "genetics" in tags) and not (
+            "META-ANALYSIS" in labels or "SYSTEMATIC REVIEW" in labels or "CONSENSUS" in labels
+        ):
+            p["gate_status"] = "WATCHLIST" if score >= 6 else "BACKGROUND"
+            p["gate_note"] = (
+                "Single genetics/SNP papers are hypothesis-generating only. Do not convert them directly into product logic. "
+                f"{extra}"
+            ).strip()
+        elif "META-ANALYSIS" in labels or "SYSTEMATIC REVIEW" in labels or "CONSENSUS" in labels:
             p["gate_status"] = "CANDIDATE"
-            p["gate_note"]   = ("ELIGIBLE FOR THRESHOLD REVIEW. Check: same population? Same sport/sex? "
-                                "Meaningful effect size? If yes -- schedule formal review with performance staff.")
-        elif "BASKETBALL" in labels or "WNBA" in labels:
+            p["gate_note"] = (
+                "ELIGIBLE FOR FORMAL REVIEW. Check athlete relevance, practical actionability, consistency with current guardrails, "
+                f"and whether the evidence supports a wording or workflow change. {extra}"
+            ).strip()
+        elif "BIOMARKER" in labels or "FERRITIN" in labels or "VITAMIN D" in labels or "ATHLETE" in labels:
             p["gate_status"] = "REVIEW"
-            p["gate_note"]   = ("Basketball-specific -- read abstract carefully. "
-                                "Single study: WATCHLIST only. Do not change thresholds alone.")
+            p["gate_note"] = (
+                "Athlete-relevant biomarker/genetics paper -- read abstract carefully. "
+                f"Single studies can sharpen language, but they should not override guardrails or become deterministic rules. {extra}"
+            ).strip()
         elif score >= 6:
             p["gate_status"] = "WATCHLIST"
-            p["gate_note"]   = ("Prospective or cohort study. Monitor for replication. "
-                                "Escalate to CANDIDATE if confirmed in future meta-analysis.")
+            p["gate_note"] = (
+                "Prospective or cohort study. Monitor for replication and athlete specificity before any product change. "
+                f"{extra}"
+            ).strip()
         else:
             p["gate_status"] = "BACKGROUND"
-            p["gate_note"]   = "Background awareness only. Not sufficient basis for threshold change."
+            p["gate_note"] = f"Background awareness only. Not sufficient basis for product or guardrail change. {extra}".strip()
     return papers
+
+
+# ==============================================================================
+# DEDUPLICATION
+# ==============================================================================
+DECISION_PRIORITY = {
+    "INTEGRATED": 5,
+    "APPROVED": 4,
+    "WATCHLIST": 3,
+    "REJECTED": 2,
+    "PENDING": 1,
+    "": 0,
+}
+
+
+def paper_identity(paper):
+    """Stable identity for a paper across reruns and source-specific IDs."""
+    if paper.get("pmid"):
+        return f"pmid:{paper['pmid']}"
+    if paper.get("url"):
+        return f"url:{paper['url'].strip().lower()}"
+    title = re.sub(r"\s+", " ", (paper.get("title") or "").strip().lower())
+    source = (paper.get("source") or paper.get("source_type") or "unknown").strip().lower()
+    return f"title:{source}:{title}"
+
+
+def _paper_rank(paper):
+    decision_score = DECISION_PRIORITY.get((paper.get("decision") or "").upper(), 0)
+    filled_fields = sum(1 for v in paper.values() if v not in ("", None, [], {}))
+    notes_score = 1 if paper.get("decision_notes") else 0
+    return (decision_score, notes_score, filled_fields)
+
+
+def merge_paper_records(primary, secondary):
+    """Merge two records, preserving the richer review state and filling blanks."""
+    winner, loser = (primary, secondary) if _paper_rank(primary) >= _paper_rank(secondary) else (secondary, primary)
+    merged = dict(winner)
+
+    for key, value in loser.items():
+        if merged.get(key) in ("", None, [], {}):
+            merged[key] = value
+
+    # Preserve earliest discovery date and latest decision date when available.
+    for date_key in ("date_found", "decision_date"):
+        dates = [paper.get(date_key, "") for paper in (primary, secondary) if paper.get(date_key)]
+        if dates:
+            merged[date_key] = min(dates) if date_key == "date_found" else max(dates)
+
+    return merged
+
+
+def dedupe_items(items):
+    deduped = {}
+    order = []
+
+    for paper in items:
+        key = paper_identity(paper)
+        if key not in deduped:
+            deduped[key] = paper
+            order.append(key)
+        else:
+            deduped[key] = merge_paper_records(deduped[key], paper)
+
+    return [deduped[key] for key in order]
 
 
 # ==============================================================================
@@ -395,10 +501,11 @@ def save_log(new_items, output_path="research_log.json"):
             existing = json.loads(log_path.read_text(encoding="utf-8"))
         except Exception:
             pass
-    existing_ids = {p.get("id") or p.get("pmid") or p.get("url", "") for p in existing}
+    existing = dedupe_items(existing)
+    existing_ids = {paper_identity(p) for p in existing}
     to_add = []
     for p in new_items:
-        pid = p.get("id") or p.get("pmid") or p.get("url", "")
+        pid = paper_identity(p)
         if pid not in existing_ids:
             p["date_found"]     = datetime.now().strftime("%Y-%m-%d")
             p["decision"]       = "PENDING"
@@ -406,9 +513,31 @@ def save_log(new_items, output_path="research_log.json"):
             p["decision_date"]  = ""
             p["decision_notes"] = ""
             to_add.append(p)
-    combined = to_add + existing
+            existing_ids.add(pid)
+    combined = dedupe_items(to_add + existing)
     log_path.write_text(json.dumps(combined, indent=2, ensure_ascii=False), encoding="utf-8")
     print(f"  Saved {len(to_add)} new items to {output_path} (total: {len(combined)})\n")
+
+
+def dedupe_log_file(output_path="research_log.json"):
+    log_path = Path(output_path)
+    if not log_path.exists():
+        print(f"  No log found at {output_path}")
+        return 0
+
+    try:
+        items = json.loads(log_path.read_text(encoding="utf-8"))
+    except Exception as e:
+        print(f"  Could not read {output_path}: {e}")
+        return 0
+
+    before = len(items)
+    after_items = dedupe_items(items)
+    after = len(after_items)
+    log_path.write_text(json.dumps(after_items, indent=2, ensure_ascii=False), encoding="utf-8")
+    removed = before - after
+    print(f"  Dedupe complete for {output_path}: removed {removed} duplicates (total now {after})")
+    return removed
 
 
 # ==============================================================================
@@ -428,7 +557,9 @@ def generate_html(pubmed_papers, rss_items, days):
     LABEL_COLORS = {
         "META-ANALYSIS":"#7c3aed","SYSTEMATIC REVIEW":"#1d4ed8",
         "RCT":"#0369a1","PROSPECTIVE":"#0891b2","COHORT":"#0e7490",
-        "BASKETBALL":"#ca8a04","WNBA":"#b45309","FEMALE":"#be185d","REVIEW":"#64748b",
+        "BIOMARKER":"#0f766e","FERRITIN":"#b45309","VITAMIN D":"#ca8a04",
+        "GENETICS":"#1d4ed8","SNP":"#4338ca","ATHLETE":"#0369a1",
+        "FEMALE":"#be185d","CONSENSUS":"#7c3aed","REVIEW":"#64748b",
     }
 
     def badge(status):
@@ -472,7 +603,7 @@ def generate_html(pubmed_papers, rss_items, days):
 
     groups = [
         ("CANDIDATES -- Eligible for threshold review",     [p for p in pubmed_papers if p["gate_status"] == "CANDIDATE"]),
-        ("REVIEW -- Basketball-specific / high-relevance",  [p for p in pubmed_papers if p["gate_status"] == "REVIEW"]),
+        ("REVIEW -- Athlete-specific / high-relevance",     [p for p in pubmed_papers if p["gate_status"] == "REVIEW"]),
         ("PRACTITIONER ARTICLES -- Expert RSS feeds",       rss_items),
         ("WATCHLIST -- Single studies, monitor",            [p for p in pubmed_papers if p["gate_status"] == "WATCHLIST"]),
         ("BACKGROUND -- Awareness only",                    [p for p in pubmed_papers if p["gate_status"] == "BACKGROUND"]),
@@ -488,7 +619,7 @@ def generate_html(pubmed_papers, rss_items, days):
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>WAIMS Evidence Review — {date_str}</title>
+  <title>InnerAthlete Evidence Review — {date_str}</title>
   <style>body{{font-family:Arial,sans-serif;max-width:960px;margin:40px auto;padding:0 24px;background:#f8fafc;}}</style>
 </head>
 <body>
@@ -627,7 +758,7 @@ def run_monitor(days=7, save=False, html=False, output_path="research_log.json")
         print(f"CANDIDATES ({len(candidates)}) -- eligible for threshold review\n")
         for p in candidates: pr(p)
     if reviews:
-        print(f"REVIEW ({len(reviews)}) -- basketball-specific\n")
+        print(f"REVIEW ({len(reviews)}) -- athlete-specific biomarker/genetics relevance\n")
         for p in reviews[:6]: pr(p)
     if watchlist:
         print(f"WATCHLIST ({len(watchlist)}) -- single studies\n")
@@ -659,8 +790,12 @@ if __name__ == "__main__":
     parser.add_argument("--output",        type=str, default="research_log.json",
                         help="Output path for research log (default: research_log.json)")
     parser.add_argument("--github-action", action="store_true")
+    parser.add_argument("--dedupe-log",    action="store_true",
+                        help="Deduplicate the existing research log and exit")
     args = parser.parse_args()
     if args.github_action:
         print(GITHUB_YAML)
+    elif args.dedupe_log:
+        dedupe_log_file(args.output)
     else:
         run_monitor(days=args.days, save=args.save, html=args.html, output_path=args.output)
