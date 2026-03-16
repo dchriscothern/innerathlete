@@ -1,0 +1,42 @@
+[
+  {
+    "domain": "Exercise & Training Response",
+    "athlete_safe_copy": "Genetics can help frame how an athlete may respond to power, endurance, and mixed training exposures.",
+    "practitioner_copy": "Use as a contextual planning input for training emphasis, response monitoring, and coaching communication.",
+    "caution_copy": "This is probabilistic context only. It should not be used to identify talent, limit opportunity, or predict ceiling.",
+    "recommendation_tags": ["training_design", "load_monitoring"],
+    "evidence_confidence": "moderate"
+  },
+  {
+    "domain": "Nutrition & Fuel Utilization",
+    "athlete_safe_copy": "DNA can help personalize how fueling and micronutrient support are discussed.",
+    "practitioner_copy": "Useful for tailoring carbohydrate emphasis, vitamin support conversations, and practical recovery nutrition habits.",
+    "caution_copy": "Do not present this domain as destiny. Nutrition planning must still be driven by behavior, labs, and goals.",
+    "recommendation_tags": ["nutrition", "micronutrients"],
+    "evidence_confidence": "moderate"
+  },
+  {
+    "domain": "Recovery & Resilience",
+    "athlete_safe_copy": "This domain helps explain why some athletes may need more deliberate recovery support.",
+    "practitioner_copy": "Use alongside blood markers, wellness trends, and training density rather than as a standalone risk label.",
+    "caution_copy": "No genetic panel should be framed as a guaranteed injury or recovery outcome.",
+    "recommendation_tags": ["recovery", "sleep", "load_monitoring"],
+    "evidence_confidence": "emerging"
+  },
+  {
+    "domain": "Sleep & Circadian",
+    "athlete_safe_copy": "This domain can guide sleep coaching and consistency habits.",
+    "practitioner_copy": "Helpful for bedtime routines, travel preparation, and coaching language around recovery priorities.",
+    "caution_copy": "Sleep behavior and environment still matter more than genotype alone.",
+    "recommendation_tags": ["sleep", "travel_routine"],
+    "evidence_confidence": "moderate"
+  },
+  {
+    "domain": "Brain & Behavior Support",
+    "athlete_safe_copy": "This domain can support conversations about attention, learning, and response style.",
+    "practitioner_copy": "Use to tailor cueing, drill progression, and learning environments without making fixed behavioral claims.",
+    "caution_copy": "Never use this as a selection tool or as proof of cognitive limitations.",
+    "recommendation_tags": ["cognition", "skill_acquisition"],
+    "evidence_confidence": "emerging"
+  }
+]

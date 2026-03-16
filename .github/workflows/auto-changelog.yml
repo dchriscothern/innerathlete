@@ -1,23 +1,6 @@
-# .github/workflows/auto-changelog.yml
-#
 # WAIMS — Auto Changelog
-# ========================
 # Appends a timestamped entry to CHANGELOG.md on every push to main.
 # Does NOT overwrite existing entries — only appends new ones.
-#
-# Setup (one-time):
-#   1. Copy this file to .github/workflows/auto-changelog.yml in your repo
-#   2. Push to GitHub — the action activates automatically
-#   3. Every subsequent push to main adds a timestamped entry to CHANGELOG.md
-#
-# The entry format:
-#   ## Auto-entry — 2026-03-10 14:32 UTC
-#   **Branch:** main | **Pushed by:** dchriscothern
-#   **Files changed:** dashboard.py, coach_command_center.py
-#   **Commit:** feat(command-center): Replace clinical load language with coach language
-#
-# For clean professional entries: write good commit messages using .gitmessage
-# template — the auto-entry pulls the commit subject line directly.
 
 name: Auto Changelog
 

@@ -1,0 +1,14 @@
+[
+  {
+    "step": "Collect",
+    "description": "Capture biomarker, DNA, cognition, and wellness inputs through a privacy-first workflow."
+  },
+  {
+    "step": "Interpret",
+    "description": "Combine expert context, longitudinal monitoring, and structured InnerAthlete logic."
+  },
+  {
+    "step": "Personalize",
+    "description": "Translate the combined signal set into a practical plan for performance, recovery, and coaching."
+  }
+]

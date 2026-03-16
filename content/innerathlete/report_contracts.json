@@ -1,0 +1,17 @@
+[
+  {
+    "audience": "athlete",
+    "sections": ["summary_header", "blood", "dna", "brain", "performance_map", "personalized_plan", "safe_caveats"],
+    "tone": "plain_language"
+  },
+  {
+    "audience": "coach",
+    "sections": ["summary_header", "blood", "dna", "brain", "performance_map", "personalized_plan", "coaching_notes", "safe_caveats"],
+    "tone": "decision_support"
+  },
+  {
+    "audience": "practitioner",
+    "sections": ["summary_header", "blood", "dna", "brain", "performance_map", "personalized_plan", "monitoring_notes", "operational_notes", "safe_caveats"],
+    "tone": "technical_context"
+  }
+]

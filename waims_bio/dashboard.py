@@ -1,63 +1,135 @@
-import streamlit as st
+from pathlib import Path
+
 import pandas as pd
 import plotly.express as px
-from core.engine import WAIMSEngine
-from biomarker_tab import run_biomarker_tab
-from cognition_tab import run_cognition_tab
+import streamlit as st
 
-# 1. Page Configuration
-st.set_page_config(page_title="WAIMS // BIO-SYNC", layout="wide")
+try:
+    from waims_bio.biomarker_tab import run_biomarker_tab
+    from waims_bio.cognition_tab import run_cognition_tab
+    from waims_bio.core.engine import WAIMSEngine
+    from waims_bio.genomics_tab import run_genomics_tab
+except ModuleNotFoundError:
+    from biomarker_tab import run_biomarker_tab
+    from cognition_tab import run_cognition_tab
+    from core.engine import WAIMSEngine
+    from genomics_tab import run_genomics_tab
 
-# 2. Initialize Core Engine
-engine = WAIMSEngine(athlete_id="Joe Bailey")
-meta = engine.get_athlete_meta()
 
-# 3. Sidebar Configuration
+BASE_DIR = Path(__file__).resolve().parent
+
+LOGO_PATH = BASE_DIR.parent / "assets" / "branding" / "innerathlete" / "innerathlete-icon-dark.svg"
+
+st.set_page_config(
+    page_title="InnerAthlete Intelligence Hub",
+    page_icon=str(LOGO_PATH) if LOGO_PATH.exists() else None,
+    layout="wide",
+)
+
+
+engine = WAIMSEngine()
+meta = engine.get_org_meta()
+
 with st.sidebar:
-    st.title("WAIMS CONTROL")
-    st.info(f"System: {meta['status']}")
+    if LOGO_PATH.exists():
+        st.image(str(LOGO_PATH), width=54)
+    st.title("InnerAthlete")
+    st.caption("Privacy-first demo workspace")
+    st.success(meta["status"])
     st.divider()
-    st.subheader("Quick Input")
-    s_sleep = st.slider("Sleep Quality", 1, 10, 7)
-    e_load = st.number_input("Session RPE", 0, 10, 5)
+    recovery_score = st.slider("Recovery check-in", 1, 10, 7)
+    load_score = st.slider("Training load balance", 1, 10, 6)
+    biomarker_score = st.slider("Biomarker stability", 1, 100, 82)
+    st.divider()
+    st.caption("Only anonymized sample files should be uploaded into this demo.")
 
-# 4. Main Header & Key Metrics
-st.title("WAIMS // COACH COMMAND")
-st.markdown(f"### {meta['name']} | {meta['status']}")
+readiness = engine.get_unified_readiness(
+    recovery_score=recovery_score,
+    load_score=load_score,
+    biomarker_score=biomarker_score,
+)
 
-# Calculate live readiness from engine
-readiness = engine.get_unified_readiness(sub_wellness=s_sleep, ext_load=e_load * 10)
+hero_left, hero_right = st.columns([1.4, 1.0])
 
-col1, col2, col3 = st.columns(3)
-col1.metric("READINESS", f"{readiness}%")
-col2.metric("GENOMIC TYPE", meta['genomic_type'])
-col3.metric("RECOVERY RATE", "High (ACTN3-RR)")
+with hero_left:
+    st.title(meta["company"])
+    st.subheader(meta["tagline"])
+    st.write(
+        "This demo site frames InnerAthlete as a performance intelligence company built around "
+        "biomarker monitoring, genetic testing, and S2-style cognition testing. All examples in this workspace "
+        "should remain anonymized and portfolio-safe."
+    )
+
+with hero_right:
+    st.metric("Composite readiness", f"{readiness}%")
+    st.metric("Program focus", meta["program_focus"])
+
+card_columns = st.columns(3)
+for column, card in zip(card_columns, engine.get_program_cards()):
+    column.markdown(f"### {card['title']}")
+    column.metric(card["title"], card["value"])
+    column.caption(card["detail"])
 
 st.divider()
 
-# 5. Modular Tab System
-tabs = st.tabs(["Performance", "Biomarkers", "Cognition", "Genomics"])
+overview = pd.DataFrame(
+    {
+        "Pillar": ["Biomarkers", "Genetics", "S2 Cognition", "Recovery Workflow"],
+        "Maturity": [86, 74, 81, 79],
+    }
+)
+overview_fig = px.area(
+    overview,
+    x="Pillar",
+    y="Maturity",
+    markers=True,
+    color_discrete_sequence=["#0f766e"],
+)
+overview_fig.update_layout(height=300, margin=dict(l=10, r=10, t=20, b=10))
+st.plotly_chart(overview_fig, use_container_width=True)
 
-with tabs[0]: # Performance Tab
-    st.subheader("Athlete Performance Radar")
-    # Visualization logic
-    df_radar = pd.DataFrame(dict(
-        r=[85, 90, 70, 88, 65],
-        theta=['Power','Speed','Endurance','Cognition','Recovery']))
-    fig = px.line_polar(df_radar, r='r', theta='theta', line_close=True)
-    fig.update_traces(fill='toself', line_color='#00FFA3')
-    fig.update_layout(template="plotly_dark")
-    st.plotly_chart(fig)
+tabs = st.tabs(["Program Overview", "Biomarkers", "S2 Cognition", "Genetics"])
 
-with tabs[1]: # Biomarkers Tab
-    # This calls your external logic from biomarker_tab.py
+with tabs[0]:
+    st.subheader("How InnerAthlete positions the platform")
+    st.write(
+        "InnerAthlete combines longitudinal biomarker trends, genetic context, and S2 cognition testing to help "
+        "practitioners understand recovery readiness, neurocognitive stress, and individualized training response."
+    )
+    st.markdown(
+        """
+        - Biomarkers support recovery, inflammation, endocrine, and micronutrient decision-making.
+        - Genetic testing adds context for power profile, connective-tissue support, and recovery tendencies.
+        - S2 cognition testing helps flag perceptual load, tracking speed, and decision strain under fatigue.
+        - Coaches and operators should only work from de-identified athlete codes in this demo environment.
+        """
+    )
+
+    biomarker_template = (BASE_DIR / "data" / "biomarkers" / "innerathlete_biomarker_template.csv").read_text()
+    cognition_template = (BASE_DIR / "data" / "cognitive" / "innerathlete_cognition_template.csv").read_text()
+
+    dl_col1, dl_col2 = st.columns(2)
+    dl_col1.download_button(
+        "Download biomarker template",
+        biomarker_template,
+        file_name="innerathlete_biomarker_template.csv",
+    )
+    dl_col2.download_button(
+        "Download cognition template",
+        cognition_template,
+        file_name="innerathlete_cognition_template.csv",
+    )
+
+    st.warning(
+        "Before adding any example files, strip names, DOB, contact details, team identifiers, and medical record numbers. "
+        "Use synthetic or anonymized IDs such as `ATH-001`."
+    )
+
+with tabs[1]:
     run_biomarker_tab()
 
-with tabs[2]: # Cognition Tab
-    # We pass the readiness score so the cognition data reacts to the athlete's state
+with tabs[2]:
     run_cognition_tab(readiness)
 
-with tabs[3]: # Genomics Tab
-    st.subheader("Genomic Profile")
-    st.write(f"Primary Profile: **{meta['genomic_type']}**")
-    st.write("Detailed SNP analysis visualization pending.")
+with tabs[3]:
+    run_genomics_tab()

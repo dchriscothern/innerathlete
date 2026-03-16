@@ -218,3 +218,19 @@ models/*.pkl
 
 # Database (regenerate with generate_database.py)
 waims_demo.db
+data/processed_data.csv
+models/*.pkl
+
+.venv/
+venv/
+__pycache__/
+*.pyc
+.env
+.streamlit/secrets.toml
+*.db
+data/
+exports/
+reports/
+labs/
+biomarkers/
+athlete_uploads/
