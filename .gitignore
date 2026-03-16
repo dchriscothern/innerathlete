@@ -217,7 +217,8 @@ __pycache__/
 models/*.pkl
 
 # Database (regenerate with generate_database.py)
-waims_demo.db
+# Keep the anonymized demo DB tracked so Streamlit Cloud has the required tables.
+!waims_demo.db
 data/processed_data.csv
 models/*.pkl
 
@@ -228,6 +229,7 @@ __pycache__/
 .env
 .streamlit/secrets.toml
 *.db
+!waims_demo.db
 data/
 exports/
 reports/
