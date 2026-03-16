@@ -39,6 +39,20 @@ DEMO_USERS = {
         "name": "Executive Product Preview",
         "public_demo": True,
     },
+    "athlete_demo_1": {
+        "password": "athlete123",
+        "role": "athlete",
+        "display": "Athlete Preview 1",
+        "name": "Athlete Portal Preview 1",
+        "public_demo": False,
+    },
+    "athlete_demo_2": {
+        "password": "athlete123",
+        "role": "athlete",
+        "display": "Athlete Preview 2",
+        "name": "Athlete Portal Preview 2",
+        "public_demo": False,
+    },
     "coach": {
         "password": "coach123",
         "role": "head_coach",
@@ -86,14 +100,14 @@ DEMO_USERS = {
 
 TAB_ACCESS = {
     "investor_demo": dict(ov=True, bio=True, gen=True, cog=True, how=True, why=True, plan=True),
-    "coach_preview": dict(ov=True, bio=True, gen=True, cog=True, how=True, plan=True),
-    "medical_preview": dict(ov=True, bio=True, gen=True, cog=True, how=True, plan=True),
-    "executive_preview": dict(ov=True, bio=True, gen=True, cog=True, why=True, plan=True),
-    "head_coach": dict(ov=True, bio=True, gen=True, cog=True, plan=True, cc=True, rd=True, ap=False, tr=True, jt=False, inj=True, fc=True, ins=False),
-    "asst_coach": dict(ov=True, bio=True, gen=True, cog=True, plan=True, cc=True, rd=True, ap=False, tr=True, jt=False, inj=True, fc=True, ins=False),
-    "sport_scientist": dict(ov=True, bio=True, gen=True, cog=True, plan=True, cc=True, rd=True, ap=True, tr=True, jt=True, inj=True, fc=True, ins=True),
-    "medical": dict(ov=True, bio=True, gen=True, cog=True, plan=True, cc=True, rd=True, ap=True, tr=True, jt=True, inj=True, fc=True, ins=True),
-    "gm": dict(ov=True, bio=True, gen=True, cog=True, plan=True, cc=True, rd=False, ap=False, tr=False, jt=False, inj=True, fc=False, ins=False),
+    "coach_preview": dict(ov=True, cc=True, bio=True, gen=True, cog=True, how=True, plan=True, ath=True),
+    "medical_preview": dict(ov=True, med=True, bio=True, gen=True, cog=True, how=True, plan=True, ath=True),
+    "executive_preview": dict(ov=True, cc=True, bio=True, gen=True, cog=True, why=True, plan=True, ath=True),
+    "head_coach": dict(ov=True, cc=True, bio=True, gen=True, cog=True, plan=True, ath=True),
+    "asst_coach": dict(ov=True, cc=True, bio=True, gen=True, cog=True, plan=True, ath=True),
+    "sport_scientist": dict(ov=True, cc=True, med=True, bio=True, gen=True, cog=True, plan=True, ath=True, ins=True),
+    "medical": dict(ov=True, med=True, bio=True, gen=True, cog=True, plan=True, ath=True),
+    "gm": dict(ov=True, cc=True, bio=True, gen=True, cog=True, plan=True),
     "athlete": dict(ov=True, bio=True, gen=True, cog=True, plan=True),
 }
 
@@ -102,11 +116,13 @@ TAB_LABELS = {
     "ov": "Performance Map",
     "bio": "Blood",
     "gen": "DNA",
-    "cog": "Brain",
+    "cog": "Cognitive",
     "how": "How It Works",
     "why": "Why It Matters",
     "plan": "Personalized Plan",
-    "cc": "Command Center",
+    "cc": "Coach Command Center",
+    "med": "Medical Review",
+    "ath": "Athlete Reports",
     "rd": "Today's Readiness",
     "ap": "Athlete Profiles",
     "tr": "Trends & Load",
@@ -242,7 +258,7 @@ def render_login_page():
             '<div style="text-align:center;margin-bottom:24px;">'
             '<div style="font-size:30px;font-weight:800;color:#0f172a;">InnerAthlete</div>'
             '<div style="font-size:14px;color:#64748b;margin-top:4px;">'
-            'Blood · DNA · Brain<br>Privacy-first platform demo</div>'
+            'Blood | DNA | Cognitive<br>Privacy-first platform demo</div>'
             "</div>",
             unsafe_allow_html=True,
         )

@@ -23,11 +23,15 @@ from auth import (render_login_page, render_user_badge, is_authenticated,
 from innerathlete_views import (
     render_blood_snapshot,
     render_brain_snapshot,
-    render_dna_snapshot,
     render_how_it_works,
     render_performance_map,
     render_personalized_plan,
     render_why_it_matters,
+)
+from innerathlete_role_views import (
+    render_athlete_reports,
+    render_innerathlete_command_center,
+    render_medical_review,
 )
 
 try:
@@ -1036,13 +1040,13 @@ st.markdown(
 )
 
 if role == "investor_demo":
-    st.caption("Hidden product walkthrough focused on how InnerAthlete turns Blood, DNA, and Brain inputs into a personalized plan.")
+    st.caption("Hidden product walkthrough focused on how InnerAthlete turns Blood, DNA, and Cognitive inputs into a personalized plan.")
 elif role in ("coach_preview", "medical_preview", "executive_preview"):
     st.caption("Public preview login focused on the InnerAthlete product story without exposing the deeper WAIMS operational workspace.")
 elif role == "athlete":
-    st.caption("Future athlete self-service preview built on the same Blood, DNA, Brain, and plan architecture.")
+    st.caption("Future athlete self-service preview built on the same Blood, DNA, Cognitive, and plan architecture.")
 else:
-    st.caption("Integrated product and platform view across Blood, DNA, Brain, wellness, readiness, and staff workflows.")
+    st.caption("Integrated product and platform view across Blood, DNA, Cognitive, wellness, readiness, and staff workflows.")
 
 # GMs get a focused banner instead of full tab nav
 if role == "gm":
@@ -1072,18 +1076,16 @@ if "bio" in tab_map:
         st.markdown("---")
         if HAVE_INNERATHLETE_TABS:
             st.caption("InnerAthlete blood module. Upload anonymized examples only.")
-            run_biomarker_tab()
+            run_biomarker_tab(role)
         else:
             st.warning("InnerAthlete blood module not available. Check files in `waims_bio`.")
 
 
 if "gen" in tab_map:
     with tab_map["gen"]:
-        render_dna_snapshot()
-        st.markdown("---")
         if HAVE_INNERATHLETE_TABS:
             st.caption("InnerAthlete DNA module. Genetics content is contextual, anonymized, and non-deterministic.")
-            run_genomics_tab()
+            run_genomics_tab(role)
         else:
             st.warning("InnerAthlete DNA module not available. Check files in `waims_bio`.")
 
@@ -1093,7 +1095,7 @@ if "cog" in tab_map:
         render_brain_snapshot()
         st.markdown("---")
         if HAVE_INNERATHLETE_TABS:
-            st.caption("InnerAthlete brain module. S2-style cognition view uses anonymized sample data.")
+            st.caption("InnerAthlete cognitive module. S2-style cognition view uses anonymized sample data.")
             sample_readiness = 78
             if len(wellness) > 0:
                 today = wellness[wellness["date"] == pd.to_datetime(end_date)].copy()
@@ -1107,9 +1109,9 @@ if "cog" in tab_map:
                         ).mean(),
                         1,
                     )
-            run_cognition_tab(sample_readiness)
+            run_cognition_tab(sample_readiness, role)
         else:
-            st.warning("InnerAthlete brain module not available. Check files in `waims_bio`.")
+            st.warning("InnerAthlete cognitive module not available. Check files in `waims_bio`.")
 
 
 if "how" in tab_map:
@@ -1129,28 +1131,22 @@ if "plan" in tab_map:
 # ── Command Center ────────────────────────────────────────────────────────────
 if "cc" in tab_map:
     with tab_map["cc"]:
-        if role == "gm":
-            # GM sees readiness summary only — no raw wellness, no minutes detail
-            st.subheader("Roster Availability Summary")
-            st.caption("Executive view — traffic lights and availability only.")
-            today = wellness[wellness["date"] == pd.to_datetime(end_date)].copy()
-            today = today.merge(players[["player_id", "name", "position"]], on="player_id", how="left")
-            today["readiness_score"] = (
-                (today["sleep_hours"] / 8) * 30
-                + ((10 - today["soreness"]) / 10) * 25
-                + ((10 - today["stress"]) / 10) * 25
-                + (today["mood"] / 10) * 20
-            )
-            today["status"] = today["readiness_score"].apply(
-                lambda x: "🟢 Ready" if x >= 80 else ("🟡 Monitor" if x >= 60 else "🔴 Protect"))
-            st.dataframe(
-                today[["name", "position", "status"]].sort_values("name"),
-                hide_index=True, width='stretch'
-            )
-            st.caption("Detailed wellness scores, load data, and force plate metrics are restricted to performance staff.")
-        else:
-            coach_command_center(wellness, players, force_plate, training_load, acwr, end_date,
-                                 ml_predictions=ml_predictions)
+        render_innerathlete_command_center(
+            wellness,
+            players,
+            force_plate,
+            training_load,
+            end_date,
+            role,
+        )
+
+if "med" in tab_map:
+    with tab_map["med"]:
+        render_medical_review(wellness, players, force_plate, end_date)
+
+if "ath" in tab_map:
+    with tab_map["ath"]:
+        render_athlete_reports(wellness, players, force_plate, end_date)
 
 # ── Today's Readiness ─────────────────────────────────────────────────────────
 if "rd" in tab_map:
@@ -2166,7 +2162,7 @@ if "ins" in tab_map:
 st.markdown("---")
 st.markdown(
     "<div style='text-align:center;color:#666;'>"
-    "<p><strong>InnerAthlete</strong> | Blood · DNA · Brain · Personalized Plan</p>"
+    "<p><strong>InnerAthlete</strong> | Blood | DNA | Cognitive | Personalized Plan</p>"
     "<p>Privacy-first demo platform built with anonymized content in Python, Streamlit, and SQLite.</p>"
     "</div>",
     unsafe_allow_html=True,

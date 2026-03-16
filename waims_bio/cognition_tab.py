@@ -54,9 +54,9 @@ def _metric_chart():
     return fig
 
 
-def run_cognition_tab(readiness_score):
+def run_cognition_tab(readiness_score, role=None):
     render_privacy_guardrail(" for cognition")
-    st.subheader("S2 Cognition Testing")
+    st.subheader("S2 Cognitive Testing")
 
     meta1, meta2, meta3 = st.columns(3)
     meta1.metric("Athlete", ATHLETE_OVERVIEW["label"])
@@ -81,8 +81,31 @@ def run_cognition_tab(readiness_score):
             unsafe_allow_html=True,
         )
 
-    st.markdown("### Coaching Translation")
-    for action in S2_ACTIONS:
+    audience = "athlete" if role == "athlete" else ("investor" if role == "investor_demo" else ("medical" if role in ("medical", "medical_preview", "sport_scientist") else "coach"))
+
+    st.markdown("### Cognitive Priorities")
+    if audience == "athlete":
+        actions = [
+            "Use good sleep and recovery habits to help decision speed and attention stay sharp.",
+            "Build read-react work gradually instead of trying to master too much complexity at once.",
+            "Treat lower scores as trainable skills, not fixed limitations.",
+        ]
+    elif audience == "medical":
+        actions = [
+            "Interpret cognitive results alongside sleep, stress, recovery support, and recent load.",
+            "Use downturns as a cue to check context before changing training recommendations.",
+            "Support coaches with simple decision-load guidance rather than technical jargon.",
+        ]
+    elif audience == "investor":
+        actions = [
+            "The cognitive layer turns reaction, timing, and learning signals into usable coaching language.",
+            "The value is not the raw score alone. It is the way the platform connects cognition to daily decisions.",
+            "This pillar becomes stronger when it sits beside blood, DNA, and readiness context.",
+        ]
+    else:
+        actions = list(S2_ACTIONS)
+
+    for action in actions:
         st.write(f"- {action}")
 
     if readiness_score < 70:
