@@ -67,6 +67,7 @@ except ImportError:
 
 HERE = Path(__file__).resolve().parent
 LOGO_PATH = HERE / "assets" / "branding" / "innerathlete" / "innerathlete-icon-dark.svg"
+DB_PATH = HERE / "waims_demo.db"
 
 st.set_page_config(
     page_title="InnerAthlete Intelligence Hub",
@@ -81,7 +82,7 @@ st.set_page_config(
 
 @st.cache_data
 def load_data():
-    conn          = sqlite3.connect("waims_demo.db")
+    conn          = sqlite3.connect(str(DB_PATH))
     players       = pd.read_sql_query("SELECT * FROM players",        conn)
     wellness      = pd.read_sql_query("SELECT * FROM wellness",       conn)
     training_load = pd.read_sql_query("SELECT * FROM training_load",  conn)
@@ -111,7 +112,7 @@ try:
     players, wellness, training_load, force_plate, injuries, acwr, availability = load_data()
 except Exception as e:
     st.error(f"Error loading database: {e}")
-    st.info("Make sure waims_demo.db is in the current directory")
+    st.info(f"Expected demo database at: {DB_PATH}")
     st.stop()
 
 # ==============================================================================

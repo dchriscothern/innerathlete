@@ -1,1 +1,1 @@
-from waims_bio.dashboard import *
+from dashboard import *
